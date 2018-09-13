@@ -1204,11 +1204,52 @@ async def get_action_context_and_template(chain, parent_link, decision_link):
     jsone_context = await populate_jsone_context(chain, parent_link, decision_link, "action")
     if 'task' in action_defn and chain.context.config['min_cot_version'] <= 2:
         tmpl = {'tasks': [action_defn['task']]}
-    else:
+    elif action_defn.get('kind') != 'hook':
+        # Get rid of this block when all actions are hooks
         tmpl = await get_in_tree_template(decision_link)
         for k in ('action', 'push', 'repository'):
             jsone_context[k] = deepcopy(action_defn['hookPayload']['decision'][k])
         jsone_context['action']['repo_scope'] = get_repo_scope(parent_link.task, parent_link.name)
+    else:
+        # action-hook. an attempt to duplicate the logic here:
+        # https://hg.mozilla.org/build/ci-admin/file/edad9f8/ciadmin/generate/in_tree_actions.py#l154
+        action_perm = action_defn.get('action_perm', 'generic')
+        if action_perm == 'generic':
+            cb_name = '${payload.decision.action.cb_name}'
+        else:
+            cb_name = action_perm
+
+        tmpl = {
+            '$let': {
+                'tasks_for': 'action',
+                'action': {
+                    'name': '${payload.decision.action.name}',
+                    'title': '${payload.decision.action.title}',
+                    'description': '${payload.decision.action.description}',
+                    'taskGroupId': '${payload.decision.action.taskGroupId}',
+                    'symbol': '${payload.decision.action.symbol}',
+
+                    'repo_scope': 'assume:repo:${payload.decision.repository.url[8:]}:action:' + action_perm,
+
+                    'cb_name': cb_name,
+                },
+
+                'push': {'$eval': 'payload.decision.push'},
+                'repository': {'$eval': 'payload.decision.repository'},
+                'input': {'$eval': 'payload.user.input'},
+                'parameters': {'$eval': 'payload.decision.parameters'},
+
+                'taskId': {'$eval': 'payload.user.taskId'},
+                'taskGroupId': {'$eval': 'payload.user.taskGroupId'},
+
+                # the hooks service provides the taskId that it will use for the resulting action task
+                'ownTaskId': {'$eval': 'taskId'},
+            }
+        }
+        tmpl['in'] = await get_in_tree_template(decision_link)
+        jsone_context['payload'] = action_defn['hookPayload']
+        jsone_context['taskId'] = 'TODO1'
+        jsone_context['taskGroupId'] = 'TODO2'
 
     return jsone_context, tmpl
 
