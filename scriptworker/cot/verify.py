@@ -1140,11 +1140,13 @@ def _get_action_from_actions_json(all_actions, callback_name):
 def _wrap_action_hook_with_let(action_defn, tmpl):
     # action-hook. an attempt to duplicate the logic here:
     # https://hg.mozilla.org/build/ci-admin/file/edad9f8/ciadmin/generate/in_tree_actions.py#l154
-    action_perm = action_defn.get('action_perm', 'generic')
-    if action_perm == 'generic':
+    if 'generic/' in action_defn.get('hookId', 'generic/'):
         cb_name = '${payload.decision.action.cb_name}'
+        action_perm = 'generic'
     else:
-        cb_name = action_perm
+        # TODO FIX; where do we get `action_perm` ?
+        cb_name = 'release-promotion'
+        action_perm = 'release-promotion'
     return {
         '$let': {
             'tasks_for': 'action',
@@ -1169,7 +1171,8 @@ def _wrap_action_hook_with_let(action_defn, tmpl):
             'taskGroupId': {'$eval': 'payload.user.taskGroupId'},
 
             # the hooks service provides the taskId that it will use for the resulting action task
-            'ownTaskId': {'$eval': 'taskId'},
+            # XXX gotta comment this out for verify_cot to work :(
+            #'ownTaskId': {'$eval': 'taskId'},
         },
         'in': tmpl,
     }
@@ -1180,7 +1183,9 @@ def _render_action_hook_payload(hook_payload, action_context, action_task):
         'input': action_context['input'],
         'parameters': action_context['parameters'],
         'taskGroupId': action_task.decision_task_id,
-        'taskId': action_task.task_id,
+        # this is needed for action hook verification to work :(
+        'taskId': None,
+        'ownTaskId': action_task.task_id,
     })
 
 
