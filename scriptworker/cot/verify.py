@@ -1211,7 +1211,7 @@ def _wrap_action_hook_with_let(tmpl, action_perm):
 
             # the hooks service provides the taskId that it will use for the resulting action task
             # XXX gotta comment this out for verify_cot to work :(
-            #'ownTaskId': {'$eval': 'taskId'},
+            # 'ownTaskId': {'$eval': 'taskId'},
         },
         'in': tmpl,
     }
@@ -1269,7 +1269,7 @@ async def get_action_context_and_template(chain, parent_link, decision_link):
         )
     else:
         raise CoTError('Unknown action kind `{kind}` for action `{name}`.'.format(
-            kind=defn.get('kind', '<MISSING>'),
+            kind=action_defn.get('kind', '<MISSING>'),
             name=action_name,
         ))
 

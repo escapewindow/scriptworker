@@ -1244,14 +1244,62 @@ async def test_get_action_context_and_template(chain, name, task_id, path,
         await cotv3_load_url(chain.context, None, 'taskcluster.yml')
     )
     fake_context = {
-        'action': {
-            'cb_name': 'retrigger_action',
-            'description': 'Create a clone of the task.',
-            'name': 'retrigger',
-            'repo_scope': 'assume:repo:hg.mozilla.org/try:action:generic',
-            'symbol': 'rt',
-            'taskGroupId': 'c5nn2xbNS9mJxeVC0uNElg',
-            'title': 'Retrigger'
+        'payload': {
+            'decision': {
+                'action': {
+                    'cb_name': 'retrigger_action',
+                    'description': 'Create a clone of the task.',
+                    'name': 'retrigger',
+                    'symbol': 'rt',
+                    'taskGroupId': 'c5nn2xbNS9mJxeVC0uNElg',
+                    'title': 'Retrigger'
+                },
+                'parameters': {
+                    'base_repository': 'https://hg.mozilla.org/mozilla-unified',
+                    'build_date': 1515524845,
+                    'build_number': 1,
+                    'desktop_release_type': '',
+                    'do_not_optimize': [],
+                    'existing_tasks': {},
+                    'filters': ['check_servo', 'target_tasks_method'],
+                    'head_ref': '054fe08d229f064a71bae9bb793e7ab8d95eff61',
+                    'head_repository': 'https://hg.mozilla.org/projects/maple',
+                    'head_rev': '054fe08d229f064a71bae9bb793e7ab8d95eff61',
+                    'include_nightly': True,
+                    'level': '3',
+                    'message': ' ',
+                    'moz_build_date': '20180109190725',
+                    'next_version': None,
+                    'optimize_target_tasks': True,
+                    'owner': 'asasaki@mozilla.com',
+                    'project': 'maple',
+                    'pushdate': 1515524845,
+                    'pushlog_id': '343',
+                    'release_history': {},
+                    'target_tasks_method': 'mozilla_beta_tasks',
+                    'try_mode': None,
+                    'try_options': None,
+                    'try_task_config': None
+                },
+                'push': {
+                    'owner': 'mozilla-taskcluster-maintenance@mozilla.com',
+                    'pushlog_id': '272718',
+                    'revision': 'f41b2f50ff48ef4265e7be391a6e5e4b212f96a0',
+                },
+                'repository': {
+                    'level': '1',
+                    'project': 'try',
+                    'url': 'https://hg.mozilla.org/try',
+                },
+            },
+            'user': {
+                'input': {
+                    'downstream': False,
+                    'times': 1,
+                },
+                'taskGroupId': 'c5nn2xbNS9mJxeVC0uNElg',
+                'taskId': None,
+            },
         },
         'input': {'downstream': False, 'times': 1},
         'now': '2018-05-18T22:37:56.796Z',
@@ -1283,11 +1331,6 @@ async def test_get_action_context_and_template(chain, name, task_id, path,
             'try_options': None,
             'try_task_config': None
         },
-        'push': {
-            'owner': 'mozilla-taskcluster-maintenance@mozilla.com',
-            'pushlog_id': '272718',
-            'revision': 'f41b2f50ff48ef4265e7be391a6e5e4b212f96a0'
-        },
         'repository': {
             'level': '1',
             'project': 'try',
@@ -1301,7 +1344,8 @@ async def test_get_action_context_and_template(chain, name, task_id, path,
 
     result = await cotverify.get_action_context_and_template(chain, link, decision_link)
     log.info("result:\n{}".format(result))
-    assert result[1] == fake_template
+    # TODO test full template
+    assert result[1]['in'] == fake_template
     log.info("fake_template:\n{}".format(fake_template))
     # can't easily compare a lambda
     del(result[0]['as_slugid'])
