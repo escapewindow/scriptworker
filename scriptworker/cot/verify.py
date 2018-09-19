@@ -1183,16 +1183,9 @@ def _get_action_from_actions_json(all_actions, callback_name):
     raise CoTError('No action with {} callback found.'.format(callback_name))
 
 
-def _wrap_action_hook_with_let(action_defn, tmpl):
+def _wrap_action_hook_with_let(tmpl, action_perm):
     # action-hook. an attempt to duplicate the logic here:
     # https://hg.mozilla.org/build/ci-admin/file/edad9f8/ciadmin/generate/in_tree_actions.py#l154
-    if 'generic/' in action_defn.get('hookId', 'generic/'):
-        cb_name = '${payload.decision.action.cb_name}'
-        action_perm = 'generic'
-    else:
-        # TODO FIX; where do we get `action_perm` ?
-        cb_name = 'release-promotion'
-        action_perm = 'release-promotion'
     return {
         '$let': {
             'tasks_for': 'action',
@@ -1205,7 +1198,7 @@ def _wrap_action_hook_with_let(action_defn, tmpl):
 
                 'repo_scope': 'assume:repo:${payload.decision.repository.url[8:]}:action:' + action_perm,
 
-                'cb_name': cb_name,
+                'cb_name': '${payload.decision.action.cb_name}',
             },
 
             'push': {'$eval': 'payload.decision.push'},
@@ -1256,20 +1249,29 @@ async def get_action_context_and_template(chain, parent_link, decision_link):
     jsone_context = await populate_jsone_context(chain, parent_link, decision_link, "action")
     if 'task' in action_defn and chain.context.config['min_cot_version'] <= 2:
         tmpl = {'tasks': [action_defn['task']]}
-    elif action_defn.get('kind') != 'hook':
+    elif action_defn.get('kind') == 'task':
         # Get rid of this block when all actions are hooks
         tmpl = await get_in_tree_template(decision_link)
         for k in ('action', 'push', 'repository'):
             jsone_context[k] = deepcopy(action_defn['hookPayload']['decision'][k])
         jsone_context['action']['repo_scope'] = get_repo_scope(parent_link.task, parent_link.name)
-    else:
+    elif action_defn.get('kind') == 'hook':
         # action-hook.
         in_tree_tmpl = await get_in_tree_template(decision_link)
-        tmpl = _wrap_action_hook_with_let(action_defn, in_tree_tmpl)
+        if 'generic/' in action_defn.get('hookId', 'generic/'):
+            action_perm = 'generic'
+        else:
+            action_perm = action_defn['hookPayload']['decision']['action']['cb_name']
+        tmpl = _wrap_action_hook_with_let(in_tree_tmpl, action_perm)
 
         jsone_context['payload'] = _render_action_hook_payload(
             action_defn['hookPayload'], jsone_context, parent_link
         )
+    else:
+        raise CoTError('Unknown action kind `{kind}` for action `{name}`.'.format(
+            kind=defn.get('kind', '<MISSING>'),
+            name=action_name,
+        ))
 
     return jsone_context, tmpl
 
