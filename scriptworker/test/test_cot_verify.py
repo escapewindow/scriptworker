@@ -1188,13 +1188,16 @@ async def test_get_action_context_and_template(chain, name, task_id, path,
     }
 
     result = await cotverify.get_action_context_and_template(chain, link, decision_link)
-    log.info("result:\n{}".format(result))
-    # TODO test full template
     assert result[1]['in'] == fake_template
-    log.info("fake_template:\n{}".format(fake_template))
     # can't easily compare a lambda
-    del(result[0]['as_slugid'])
+    fake_context['as_slugid'] = result[0]['as_slugid']
     assert result[0] == fake_context
+    # render and compare
+    # XXX we may need more investigation around taskId / ownTaskId
+#    result[0]['ownTaskId'] == result[0]['taskId']
+#    del(result[0]['taskId'])
+    test_task = jsone.render(result[1], result[0])
+    assert test_task['tasks'][0] == link.task
 
 
 # verify_parent_task_definition {{{1
