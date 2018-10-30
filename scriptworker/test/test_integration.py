@@ -5,7 +5,7 @@
 import aiohttp
 import arrow
 import asyncio
-from asyncio_extras.contextmanager import async_contextmanager
+from aiocontext import async_contextmanager
 import json
 import logging
 import os

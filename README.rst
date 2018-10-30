@@ -83,7 +83,7 @@ It's also possible to test in docker. First, `build the docker image`_, making s
     # For some reason, tox runs faster in an interactive shell and hangs without
     docker run -i scriptworker-test-$PY_DOT_VERSION bash -il  # interactive shell
     # in the docker shell,
-    tox -e py37  # or py36
+    bin/tox -e py37  # or py36
 
 GPG Homedir testing
 ^^^^^^^^^^^^^^^^^^^
@@ -92,6 +92,6 @@ Sometimes it's nice to be able to test things like ``rebuild_gpg_homedirs``.  To
 
     docker run -i scriptworker-test-$PY_DOT_VERSION bash -il
     # in the docker shell,
-    rebuild_gpg_homedirs gnupg.yaml
+    bin/rebuild_gpg_homedirs gnupg.yaml
 
 .. _build the docker image: #building-a-docker-image
