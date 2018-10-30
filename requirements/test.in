@@ -1,5 +1,5 @@
 # Specifically for testing
--r requirements-dev.txt
+-r base.in
 asyncio_extras
 coverage>=4.2
 flake8

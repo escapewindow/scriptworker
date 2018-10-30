@@ -63,12 +63,12 @@ Once you have access to a trusted key, generate new gpg keypairs for
 each host. The email address will be ``username``\ @\ ``fqdn``, e.g.
 ``cltsign@signing-linux-1.srv.releng.use1.mozilla.com``. You can use
 `this
-script <https://github.com/mozilla-releng/scriptworker/blob/master/helper_scripts/create_gpg_keys.py>`__,
+script <https://github.com/mozilla-releng/scriptworker/blob/master/scripts/create_gpg_keys.py>`__,
 like
 
 .. code:: bash
 
-    scriptworker/helper_scripts/create_gpg_keys.py -u cltsign -s host1.fqdn.com host2.fqdn.com
+    scriptworker/scripts/create_gpg_keys.py -u cltsign -s host1.fqdn.com host2.fqdn.com
     # This will generate a gpg homedir in ./gpg
     # Keys will be written to ./host{1,2}.fqdn.com.{pub,sec}
 

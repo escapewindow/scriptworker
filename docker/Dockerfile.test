@@ -13,7 +13,7 @@ RUN apt-get update && apt-get install -y --allow-downgrades \
 RUN mkdir -p /builds/scriptworker
 
 RUN ln -s /usr/bin/gpg2 /usr/bin/gpg
-COPY ./requirements* /builds/scriptworker/
+COPY ./requirements/ /builds/scriptworker/requirements
 COPY setup.py /builds/scriptworker/
 COPY setup.cfg /builds/scriptworker/
 COPY scriptworker/ /builds/scriptworker/scriptworker

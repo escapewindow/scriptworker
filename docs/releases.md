@@ -27,21 +27,21 @@ Scriptworker follows [semver](http://semver.org/).  Essentially, increment the
 [Update the changelog](http://keepachangelog.com/) before making a new release.
 
 ## Release files
-If you're changing any dependencies, please update `requirements-dev.txt`, `requirements-test-dev.txt`, and `setup.py`.
+If you're changing any dependencies, please update `requirements/*.in` and `setup.py`.
 
 If you add change the list of files that need to be packaged (either adding new files, or removing previous packaged files), modify `MANIFEST.in`.
 
 ### Requirements
-It's good practice to keep `requirements-prod.txt` and `requirements-test-prod.txt` up to date.  To do so:
+It's good practice to keep `requirements/base.txt` up to date.  To do so:
 
 ```bash
-    # Using the local venv python>=3.5,
-    pip install dephash
-    dephash gen requirements-dev.txt > requirements-prod.txt
-    dephash gen requirements-test-dev.txt > requirements-test-prod.txt
+    # build the pip docker image
+    ./scripts/pip build
+    # pin the requirements
+    ./scripts/pip pin
 ```
 
-A `git diff` will then show what has changed in the scriptworker dependencies since the last time dephash was run.  Assuming we only add the new dependencies when tox is green, we have a last-known-good set of dependencies.  Add these to the list of changes to commit.
+A `git diff` will then show what has changed in the scriptworker dependencies since the last time `pip-compile-multi` was run.  Assuming we only add the new dependencies when tox is green, we have a last-known-good set of dependencies.  Add these to the list of changes to commit.
 
 ### Versioning
 Modify `scriptworker/version.py` to set the `__version__` to the appropriate tuple.  This is either a 3- or 4-part tuple, e.g.
