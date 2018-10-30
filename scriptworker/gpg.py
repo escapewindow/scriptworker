@@ -352,7 +352,7 @@ def sign_key(context, target_fingerprint, signing_key=None,
     child = pexpect.spawn(gpg_path, cmd_args, timeout=context.config['sign_key_timeout'])
     try:
         while True:
-            index = child.expect([pexpect.EOF, b".*Really sign\? \(y/N\) ", b".*Really sign all user IDs\? \(y/N\) "])
+            index = child.expect([pexpect.EOF, rb".*Really sign\? \(y/N\) ", rb".*Really sign all user IDs\? \(y/N\) "])
             if index == 0:
                 break
             child.sendline(b'y')
