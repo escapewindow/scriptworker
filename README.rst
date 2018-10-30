@@ -43,7 +43,7 @@ First, create a `secrets.json`. For integration testing, you'll need to define t
 Then::
 
     PY_DOT_VERSION=3.7  # or 3.6
-    docker build -t scriptworker-test-$PY_DOT_VERSION --build-arg PY_DOT_VERSION=$PY_DOT_VERSION  --file docker/Dockerfile.test .
+    docker build -t scriptworker-test-$PY_DOT_VERSION --build-arg PY_DOT_VERSION=$PY_DOT_VERSION  --file docker/Dockerfile .
 
 -------
 Testing
@@ -92,6 +92,6 @@ Sometimes it's nice to be able to test things like ``rebuild_gpg_homedirs``.  To
 
     docker run -i scriptworker-test-$PY_DOT_VERSION bash -il
     # in the docker shell,
-    bin/rebuild_gpg_homedirs gnupg.yaml
+    bin/rebuild_gpg_homedirs ../dev_gnupg.yaml
 
 .. _build the docker image: #building-a-docker-image

@@ -14,6 +14,7 @@ RUN ln -s /usr/bin/gpg2 /usr/bin/gpg
 
 RUN mkdir -p /builds
 RUN python3 -mvenv /builds/scriptworker
+WORKDIR /builds/scriptworker/
 
 COPY ./requirements/ /builds/scriptworker/requirements
 COPY setup.py /builds/scriptworker/
@@ -26,15 +27,16 @@ COPY MANIFEST.in /builds/scriptworker/
 COPY version.json /builds/scriptworker/
 
 COPY secrets.json /builds/scriptworker/
-# allow for rebuild_gpg_homedirs testing
-COPY docker/gnupg.yaml /builds/scriptworker/gnupg.yaml
-COPY scriptworker/test/data/gpg/keys/scriptworker@example.com.pub /builds/my_pubkey.asc
-COPY scriptworker/test/data/gpg/keys/scriptworker@example.com.sec /builds/my_privkey.asc
 # get trusted gpg pubkeys
 RUN git clone https://github.com/mozilla-releng/cot-gpg-keys.git /builds/key_repo
 RUN git clone https://github.com/mozilla-releng/build-puppet.git /builds/puppet
 
+# allow for rebuild_gpg_homedirs testing
+COPY docker/gnupg.yaml /builds/dev_gnupg.yaml
+COPY scriptworker/test/data/gpg/keys/scriptworker@example.com.pub /builds/dev_pubkey.asc
+COPY scriptworker/test/data/gpg/keys/scriptworker@example.com.sec /builds/dev_privkey.asc
+
 # test-specific installs
-WORKDIR /builds/scriptworker/
-RUN bin/pip3 install -r /builds/scriptworker/requirements/base.in
-RUN bin/python3 setup.py develop
+ARG DOCKER_TEST
+ENV DOCKER_TEST ${DOCKER_TEST:-true}
+RUN sh -c 'if [ "$DOCKER_TEST" = true ] ; then bin/pip3 install -r /builds/scriptworker/requirements/test.in && bin/python3 setup.py develop; else bin/pip3 install -r /builds/scriptworker/requirements/base.txt && bin/python3 setup.py install; fi'
