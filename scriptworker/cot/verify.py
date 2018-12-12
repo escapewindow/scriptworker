@@ -1186,7 +1186,14 @@ def _get_action_from_actions_json(all_actions, callback_name):
 def _wrap_action_hook_with_let(tmpl, action_perm):
     # action-hook. an attempt to duplicate the logic here:
     # https://hg.mozilla.org/build/ci-admin/file/edad9f8/ciadmin/generate/in_tree_actions.py#l154
-    return {
+    if action_perm in ('release-promotion', ):
+        # release-promotion is a special action. Ideally we will remove these differences
+        taskId = None
+        ownTaskId = None
+    else:
+        taskId = {'$eval': 'payload.user.taskId'}
+        ownTaskId = {'$eval': 'taskId'}
+    let = {
         '$let': {
             'tasks_for': 'action',
             'action': {
@@ -1206,27 +1213,35 @@ def _wrap_action_hook_with_let(tmpl, action_perm):
             'input': {'$eval': 'payload.user.input'},
             'parameters': {'$eval': 'payload.decision.parameters'},
 
-            'taskId': None,
-            # 'taskId': {'$eval': 'payload.user.taskId'},
+            'taskId': taskId,
             'taskGroupId': {'$eval': 'payload.user.taskGroupId'},
 
-            # the hooks service provides the taskId that it will use for the resulting action task
-            # XXX gotta comment this out for verify_cot to work :(
-            # 'ownTaskId': {'$eval': 'taskId'},
         },
         'in': tmpl,
     }
+    if ownTaskId is not None:
+        let['$let']['ownTaskId'] = ownTaskId
+    return let
 
 
-def _render_action_hook_payload(hook_payload, action_context, action_task):
-    return jsone.render(hook_payload, {
+def _render_action_hook_payload(action_defn, action_context, action_task):
+    action_perm = _get_action_perm(action_defn)
+    hook_payload = action_defn['hookPayload']
+    if action_perm in ('release-promotion', ):
+        # release-promotion is a special action. Ideally we will remove these differences
+        ownTaskId = action_task.task_id
+        taskId = None
+    else:
+        taskId = action_task.task_id
+        ownTaskId = action_task.task_id
+    context = {
         'input': action_context['input'],
         'parameters': action_context['parameters'],
         'taskGroupId': action_task.decision_task_id,
-        # this is needed for action hook verification to work :(
-        'taskId': None,
-        'ownTaskId': action_task.task_id,
-    })
+        'taskId': taskId,
+        'ownTaskId': ownTaskId,
+    }
+    return jsone.render(hook_payload, context)
 
 def _get_action_perm(action_defn):
     action_perm = action_defn.get('actionPerm')
@@ -1272,7 +1287,7 @@ async def get_action_context_and_template(chain, parent_link, decision_link):
         tmpl = _wrap_action_hook_with_let(in_tree_tmpl, action_perm)
 
         jsone_context['payload'] = _render_action_hook_payload(
-            action_defn['hookPayload'], jsone_context, parent_link
+            action_defn, jsone_context, parent_link
         )
     else:
         raise CoTError('Unknown action kind `{kind}` for action `{name}`.'.format(
