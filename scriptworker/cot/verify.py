@@ -1208,12 +1208,11 @@ def _wrap_action_hook_with_let(tmpl, action_perm):
 
             'taskId': {'$eval': 'payload.user.taskId'},
             'taskGroupId': {'$eval': 'payload.user.taskGroupId'},
-            # XXX ci-admin sets this to `taskId`, but doing so here will break.
-            # `ownTaskId` needs to be set to `ownTaskId`
-            'ownTaskId': {'$eval': 'ownTaskId'},
+            'ownTaskId': {'$eval': 'taskId'},
         },
         'in': tmpl,
     }
+
 
 
 def _render_action_hook_payload(action_defn, action_context, action_task):
@@ -1224,7 +1223,6 @@ def _render_action_hook_payload(action_defn, action_context, action_task):
         'parameters': action_context['parameters'],
         'taskGroupId': action_task.decision_task_id,
         'taskId': action_context['taskId'],
-        'ownTaskId': action_task.task_id,
     }
     return jsone.render(hook_payload, context)
 
@@ -1271,9 +1269,13 @@ async def get_action_context_and_template(chain, parent_link, decision_link):
         action_perm = _get_action_perm(action_defn)
         tmpl = _wrap_action_hook_with_let(in_tree_tmpl, action_perm)
 
-        jsone_context['payload'] = _render_action_hook_payload(
-            action_defn, jsone_context, parent_link
-        )
+        jsone_context = {
+            'payload': _render_action_hook_payload(
+                action_defn, jsone_context, parent_link
+            ),
+            'taskId': parent_link.task_id,
+            'now': jsone_context['now'],
+        }
     else:
         raise CoTError('Unknown action kind `{kind}` for action `{name}`.'.format(
             kind=action_defn.get('kind', '<MISSING>'),
