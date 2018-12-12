@@ -1228,6 +1228,15 @@ def _render_action_hook_payload(hook_payload, action_context, action_task):
         'ownTaskId': action_task.task_id,
     })
 
+def _get_action_perm(action_defn):
+    action_perm = action_defn.get('actionPerm')
+    if action_perm is None:
+        if 'generic/' in action_defn.get('hookId', 'generic/'):
+            action_perm = 'generic'
+        else:
+            action_perm = action_defn['hookPayload']['decision']['action']['cb_name']
+    return action_perm
+
 
 async def get_action_context_and_template(chain, parent_link, decision_link):
     """Get the appropriate json-e context and template for an action task.
@@ -1259,10 +1268,7 @@ async def get_action_context_and_template(chain, parent_link, decision_link):
     elif action_defn.get('kind') == 'hook':
         # action-hook.
         in_tree_tmpl = await get_in_tree_template(decision_link)
-        if 'generic/' in action_defn.get('hookId', 'generic/'):
-            action_perm = 'generic'
-        else:
-            action_perm = action_defn['hookPayload']['decision']['action']['cb_name']
+        action_perm = _get_action_perm(action_defn)
         tmpl = _wrap_action_hook_with_let(in_tree_tmpl, action_perm)
 
         jsone_context['payload'] = _render_action_hook_payload(
