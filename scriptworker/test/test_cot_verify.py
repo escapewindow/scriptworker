@@ -1348,9 +1348,6 @@ async def test_get_action_context_and_template(chain, name, task_id, path,
     fake_context['as_slugid'] = result[0]['as_slugid']
     assert result[0] == fake_context
     # render and compare
-    # XXX we may need more investigation around taskId / ownTaskId
-#    result[0]['ownTaskId'] == result[0]['taskId']
-#    del(result[0]['taskId'])
     test_task = jsone.render(result[1], result[0])
     assert test_task['tasks'][0] == link.task
 
