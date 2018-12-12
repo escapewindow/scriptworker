@@ -1208,6 +1208,8 @@ def _wrap_action_hook_with_let(tmpl, action_perm):
 
             'taskId': {'$eval': 'payload.user.taskId'},
             'taskGroupId': {'$eval': 'payload.user.taskGroupId'},
+            # XXX ci-admin sets this to `taskId`, but doing so here will break.
+            # `ownTaskId` needs to be set to `ownTaskId`
             'ownTaskId': {'$eval': 'ownTaskId'},
         },
         'in': tmpl,
