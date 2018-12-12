@@ -1206,7 +1206,8 @@ def _wrap_action_hook_with_let(tmpl, action_perm):
             'input': {'$eval': 'payload.user.input'},
             'parameters': {'$eval': 'payload.decision.parameters'},
 
-            'taskId': {'$eval': 'payload.user.taskId'},
+            'taskId': None,
+            # 'taskId': {'$eval': 'payload.user.taskId'},
             'taskGroupId': {'$eval': 'payload.user.taskGroupId'},
 
             # the hooks service provides the taskId that it will use for the resulting action task
