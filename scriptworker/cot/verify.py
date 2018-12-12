@@ -1192,7 +1192,7 @@ def _wrap_action_hook_with_let(tmpl, action_perm):
         ownTaskId = None
     else:
         taskId = {'$eval': 'payload.user.taskId'}
-        ownTaskId = {'$eval': 'taskId'}
+        ownTaskId = {'$eval': 'ownTaskId'}
     let = {
         '$let': {
             'tasks_for': 'action',
@@ -1232,7 +1232,7 @@ def _render_action_hook_payload(action_defn, action_context, action_task):
         ownTaskId = action_task.task_id
         taskId = None
     else:
-        taskId = action_task.task_id
+        taskId = action_context['taskId']
         ownTaskId = action_task.task_id
     context = {
         'input': action_context['input'],
