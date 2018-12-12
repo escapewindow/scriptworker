@@ -1186,14 +1186,7 @@ def _get_action_from_actions_json(all_actions, callback_name):
 def _wrap_action_hook_with_let(tmpl, action_perm):
     # action-hook. an attempt to duplicate the logic here:
     # https://hg.mozilla.org/build/ci-admin/file/edad9f8/ciadmin/generate/in_tree_actions.py#l154
-    if action_perm in ('release-promotion', ):
-        # release-promotion is a special action. Ideally we will remove these differences
-        taskId = None
-        ownTaskId = None
-    else:
-        taskId = {'$eval': 'payload.user.taskId'}
-        ownTaskId = {'$eval': 'ownTaskId'}
-    let = {
+    return {
         '$let': {
             'tasks_for': 'action',
             'action': {
@@ -1213,33 +1206,23 @@ def _wrap_action_hook_with_let(tmpl, action_perm):
             'input': {'$eval': 'payload.user.input'},
             'parameters': {'$eval': 'payload.decision.parameters'},
 
-            'taskId': taskId,
+            'taskId': {'$eval': 'payload.user.taskId'},
             'taskGroupId': {'$eval': 'payload.user.taskGroupId'},
-
+            'ownTaskId': {'$eval': 'ownTaskId'},
         },
         'in': tmpl,
     }
-    if ownTaskId is not None:
-        let['$let']['ownTaskId'] = ownTaskId
-    return let
 
 
 def _render_action_hook_payload(action_defn, action_context, action_task):
     action_perm = _get_action_perm(action_defn)
     hook_payload = action_defn['hookPayload']
-    if action_perm in ('release-promotion', ):
-        # release-promotion is a special action. Ideally we will remove these differences
-        ownTaskId = action_task.task_id
-        taskId = None
-    else:
-        taskId = action_context['taskId']
-        ownTaskId = action_task.task_id
     context = {
         'input': action_context['input'],
         'parameters': action_context['parameters'],
         'taskGroupId': action_task.decision_task_id,
-        'taskId': taskId,
-        'ownTaskId': ownTaskId,
+        'taskId': action_context['taskId'],
+        'ownTaskId': action_task.task_id,
     }
     return jsone.render(hook_payload, context)
 
