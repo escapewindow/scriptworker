@@ -1275,6 +1275,7 @@ async def get_action_context_and_template(chain, parent_link, decision_link):
             ),
             'taskId': parent_link.task_id,
             'now': jsone_context['now'],
+            'as_slugid': lambda x: task_ids.get(x, task_ids['default']),
         }
     else:
         raise CoTError('Unknown action kind `{kind}` for action `{name}`.'.format(
