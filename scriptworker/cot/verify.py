@@ -2239,7 +2239,7 @@ async def _async_verify_cot_cmdln(opts, tmp):
             'artifact_dir': os.path.join(tmp, 'artifacts'),
             'task_log_dir': os.path.join(tmp, 'artifacts', 'public', 'logs'),
             'base_gpg_home_dir': os.path.join(tmp, 'gpg'),
-            'verify_cot_signature': False,
+            'verify_cot_signature': opts.verify_sigs,
         })
         context.config = apply_product_config(context.config)
         cot = ChainOfTrust(context, opts.task_type, task_id=opts.task_id)
@@ -2279,6 +2279,7 @@ or in the CREDS_FILES http://bit.ly/2fVMu0A""")
     parser.add_argument('--cleanup', help='clean up the temp dir afterwards',
                         dest='cleanup', action='store_true', default=False)
     parser.add_argument('--cot-product', help='the product type to test', default='firefox')
+    parser.add_argument('--verify-sigs', help='enable signature verification', action='store_true', default=False)
     opts = parser.parse_args(args)
     tmp = tempfile.mkdtemp()
     log = logging.getLogger('scriptworker')
