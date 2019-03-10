@@ -352,12 +352,12 @@ async def test_temp_creds(context_function):
     "index": "gecko.v2.mozilla-central.nightly.latest.firefox.win64-nightly-repackage-signing",
     "task_type": "signing",
 }, {
-    "name": "mozilla-beta linux64 en-US repackage signing",
-    "index": "gecko.v2.mozilla-beta.nightly.latest.firefox.linux64-nightly-repackage-signing",
+    "name": "mozilla-beta win64 en-US repackage signing",
+    "index": "gecko.v2.mozilla-beta.nightly.latest.firefox.win64-nightly-repackage-signing",
     "task_type": "signing",
 }, {
-    "name": "mozilla-release linux64 en-US repackage signing",
-    "index": "gecko.v2.mozilla-release.nightly.latest.firefox.linux64-nightly-repackage-signing",
+    "name": "mozilla-release win64 en-US repackage signing",
+    "index": "gecko.v2.mozilla-release.nightly.latest.firefox.win64-nightly-repackage-signing",
     "task_type": "signing",
 }))
 @pytest.mark.asyncio
