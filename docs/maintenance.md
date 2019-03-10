@@ -2,7 +2,7 @@
 
 For sheriffs, release/relops, taskcluster, or related users, this page describes maintenance for scriptworkers.
 
-Last modified 2016.11.16.
+Last modified 2019.03.09.
 
 ## New docker shas
 
@@ -22,6 +22,6 @@ As above, other chain of trust settings live in [constants.py](https://github.co
 
 Ideally we keep the delta small, and remove the overrides in puppet when we release a new scriptworker version that updates these defaults.  As currently written, each scriptworker instance type will need its scriptworker version bumped individually.
 
-## GPG keys
+## Ed25519 keys
 
-For gpg key maintenance, see the [chain of trust docs](chain_of_trust.html#gpg-key-management)
+For ed25519 key maintenance, see the [chain of trust docs](chain_of_trust.html#ed25519-key-management)

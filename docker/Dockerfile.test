@@ -1,39 +1,24 @@
 ARG PY_DOT_VERSION
 FROM python:${PY_DOT_VERSION:-3.6}
 
-# gnupg 2.0.x
-RUN echo "deb http://http.us.debian.org/debian/ oldstable non-free contrib main" >> /etc/apt/sources.list
-
-RUN apt-get update && apt-get install -y --allow-downgrades \
-    git \
-    gnupg2=2.0.26-6+deb8u2 \
-    gnupg-agent=2.0.26-6+deb8u2 \
-&& rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+        && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir -p /builds/test
 RUN mkdir -p /builds/scriptworker
 
-RUN ln -s /usr/bin/gpg2 /usr/bin/gpg
 COPY ./requirements/ /builds/scriptworker/requirements
 COPY setup.py /builds/scriptworker/
 COPY setup.cfg /builds/scriptworker/
 COPY scriptworker/ /builds/scriptworker/scriptworker
-COPY .git /builds/scriptworker/.git
 COPY .coveragerc /builds/scriptworker/
 COPY tox.ini /builds/scriptworker/
 COPY MANIFEST.in /builds/scriptworker/
 COPY version.json /builds/scriptworker/
 
-# allow for rebuild_gpg_homedirs testing
-COPY docker/gnupg.yaml /builds/test/gnupg.yaml
-COPY scriptworker/test/data/gpg/keys/scriptworker@example.com.pub /builds/test/my_pubkey.asc
-COPY scriptworker/test/data/gpg/keys/scriptworker@example.com.sec /builds/test/my_privkey.asc
 COPY secrets.json /builds/test
 COPY docker/run.sh /builds/test
 RUN bash -c "echo $PY_DOT_VERSION | sed -e 's/\.//' > /builds/test/pyver"
-# get trusted gpg pubkeys
-RUN git clone https://github.com/mozilla-releng/cot-gpg-keys.git /builds/key_repo
-RUN git clone https://github.com/mozilla-releng/build-puppet.git /builds/puppet
 
 # test-specific installs
 WORKDIR /builds/scriptworker/

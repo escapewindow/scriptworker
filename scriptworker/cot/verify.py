@@ -29,13 +29,12 @@ from scriptworker.config import read_worker_creds, apply_product_config
 from scriptworker.constants import DEFAULT_CONFIG
 from scriptworker.context import Context
 from scriptworker.ed25519 import ed25519_public_key_from_string, verify_ed25519_signature
-from scriptworker.exceptions import CoTError, BaseDownloadError, ScriptWorkerEd25519Error, ScriptWorkerGPGException
+from scriptworker.exceptions import CoTError, BaseDownloadError, ScriptWorkerEd25519Error
 from scriptworker.github import (
     GitHubRepository,
     extract_github_repo_owner_and_name,
     extract_github_repo_full_name,
 )
-from scriptworker.gpg import get_body, GPG
 from scriptworker.log import contextual_log_handler
 from scriptworker.task import (
     get_action_callback_name,
@@ -618,12 +617,8 @@ async def download_cot(chain):
         mandatory_urls = []
         optional_urls = []
 
-        # This logic will shift as we roll out ed25519 support to the other
-        # worker implementations.
-        gpg_url = get_artifact_url(chain.context, task_id, 'public/chainOfTrust.json.asc')
-        mandatory_urls.append(gpg_url)
         unsigned_url = get_artifact_url(chain.context, task_id, 'public/chain-of-trust.json')
-        optional_urls.append(unsigned_url)
+        mandatory_urls.append(unsigned_url)
         if chain.context.config['verify_cot_signature']:
             optional_urls.append(
                 get_artifact_url(chain.context, task_id, 'public/chain-of-trust.json.sig')
@@ -799,56 +794,6 @@ def get_all_artifacts_per_task_id(chain, upstream_artifacts):
 
 
 # verify_cot_signatures {{{1
-def verify_link_gpg_cot_signature(chain, link, unsigned_path):
-    """Verify the gpg signatures of the chain of trust artifacts populated in ``download_cot``.
-
-    Populate each link.cot with the chain of trust json body.
-    Write an unsigned chain-of-trust.json if it doesn't exist; raise CoTError if
-    it exists but doesn't match the unsigned body.
-
-    Args:
-        chain (ChainOfTrust): the chain of trust to add to.
-
-    Raises:
-        CoTError: on failure.
-
-    """
-    gpg_path = link.get_artifact_full_path('public/chainOfTrust.json.asc')
-    gpg_home = os.path.join(chain.context.config['base_gpg_home_dir'], link.worker_impl)
-    gpg = GPG(chain.context, gpg_home=gpg_home)
-    log.debug("Verifying the {} {} chain of trust signature against {}".format(
-        link.name, link.task_id, gpg_home
-    ))
-    contents = read_from_file(gpg_path, exception=CoTError)
-    try:
-        body = get_body(
-            gpg, contents,
-            verify_sig=chain.context.config['verify_cot_signature']
-        )
-    except ScriptWorkerGPGException as exc:
-        raise CoTError("GPG Error verifying chain of trust for {}: {}!".format(gpg_path, str(exc)))
-    link.cot = load_json_or_yaml(
-        body, exception=CoTError,
-        message="{} {}: Invalid cot json body! %(exc)s".format(link.name, link.task_id)
-    )
-    log.debug("Good.")
-    if not os.path.exists(unsigned_path):
-        log.debug("Writing json contents to {}".format(unsigned_path))
-        write_to_file(unsigned_path, link.cot, file_type='json')
-    else:
-        unsigned_contents = load_json_or_yaml(
-            unsigned_path, is_path=True, exception=CoTError,
-            message="{} {}: Invalid unsigned cot json body! %(exc)s".format(link.name, link.task_id)
-        )
-        diff = list(dictdiffer.diff(link.cot, unsigned_contents))
-        if diff:
-            raise CoTError(
-                "{} {}: unsigned chain-of-trust.json contents differ from chainOfTrust.json.asc! {}".format(
-                    link.name, link.task_id, pprint.pformat(diff)
-                )
-            )
-
-
 def verify_link_ed25519_cot_signature(chain, link, unsigned_path, signature_path):
     """Verify the ed25519 signatures of the chain of trust artifacts populated in ``download_cot``.
 
@@ -901,7 +846,6 @@ def verify_cot_signatures(chain):
     """Verify the signatures of the chain of trust artifacts populated in ``download_cot``.
 
     Populate each link.cot with the chain of trust json body.
-    Currently handles both ed25519 signatures and gpg (deprecated).
 
     Args:
         chain (ChainOfTrust): the chain of trust to add to.
@@ -913,15 +857,7 @@ def verify_cot_signatures(chain):
     for link in chain.links:
         unsigned_path = link.get_artifact_full_path('public/chain-of-trust.json')
         ed25519_signature_path = link.get_artifact_full_path('public/chain-of-trust.json.sig')
-        try:
-            verify_link_ed25519_cot_signature(chain, link, unsigned_path, ed25519_signature_path)
-        except Exception as exc:
-            log.info(
-                "{} {}: ed25519 signature verification failed; falling back to GPG: {}".format(
-                    link.name, link.task_id, str(exc)
-                )
-            )
-            verify_link_gpg_cot_signature(chain, link, unsigned_path)
+        verify_link_ed25519_cot_signature(chain, link, unsigned_path, ed25519_signature_path)
 
 
 # verify_task_in_task_graph {{{1
@@ -2238,7 +2174,6 @@ async def _async_verify_cot_cmdln(opts, tmp):
             'work_dir': os.path.join(tmp, 'work'),
             'artifact_dir': os.path.join(tmp, 'artifacts'),
             'task_log_dir': os.path.join(tmp, 'artifacts', 'public', 'logs'),
-            'base_gpg_home_dir': os.path.join(tmp, 'gpg'),
             'verify_cot_signature': opts.verify_sigs,
         })
         context.config = apply_product_config(context.config)

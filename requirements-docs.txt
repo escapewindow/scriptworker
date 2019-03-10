@@ -1,8 +1,8 @@
 # Specifically for generating docs
 -e .
 auxlib
-commonmark==0.5.5
+commonmark
 conda
 recommonmark
-Sphinx==1.4.3
+Sphinx
 sphinx_rtd_theme

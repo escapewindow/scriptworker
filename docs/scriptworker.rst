@@ -4,6 +4,14 @@ scriptworker package
 Submodules
 ----------
 
+scriptworker.artifacts module
+--------------------------
+
+.. automodule:: scriptworker.artifacts
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 scriptworker.client module
 --------------------------
 
@@ -20,6 +28,14 @@ scriptworker.config module
     :undoc-members:
     :show-inheritance:
 
+scriptworker.constants module
+------------------------------
+
+.. automodule:: scriptworker.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
 scriptworker.context module
 ---------------------------
 
@@ -28,18 +44,42 @@ scriptworker.context module
     :undoc-members:
     :show-inheritance:
 
-scriptworker.exceptions module
-------------------------------
+scriptworker.cot.generate module
+---------------------------
 
-.. automodule:: scriptworker.exceptions
+.. automodule:: scriptworker.cot.generate
     :members:
     :undoc-members:
     :show-inheritance:
 
-scriptworker.gpg module
+scriptworker.cot.verify module
+---------------------------
+
+.. automodule:: scriptworker.cot.verify
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+scriptworker.ed25519 module
+---------------------------
+
+.. automodule:: scriptworker.ed25519
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+scriptworker.github module
 ------------------------------
 
-.. automodule:: scriptworker.gpg
+.. automodule:: scriptworker.github
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+scriptworker.exceptions module
+------------------------------
+
+.. automodule:: scriptworker.exceptions
     :members:
     :undoc-members:
     :show-inheritance:

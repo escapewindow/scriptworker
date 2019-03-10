@@ -99,30 +99,6 @@ DEFAULT_CONFIG = frozendict({
     # 5000 per hour. https://developer.github.com/v3/#rate-limiting
     "github_oauth_token": "",
 
-    # Specify a default gpg home other than ~/.gnupg
-    "gpg_home": None,
-    # A list of additional gpg cmdline options
-    "gpg_options": None,
-    # The path to the gpg executable.
-    "gpg_path": None,
-    # The path to the public/secret keyrings, if we're not using the default
-    "gpg_public_keyring": '%(gpg_home)s/pubring.gpg',
-    "gpg_secret_keyring": '%(gpg_home)s/secring.gpg',
-    # Boolean to use the gpg agent
-    "gpg_use_agent": False,
-    "gpg_encoding": 'utf-8',
-
-    "base_gpg_home_dir": "...",
-    "gpg_lockfile": os.path.join(os.getcwd(), "gpg_homedir.lock"),
-    # The path to the git executable.
-    "git_path": 'git',
-    "git_key_repo_dir": "...",
-    "git_key_repo_url": "https://github.com/mozilla-releng/cot-gpg-keys.git",
-    "last_good_git_revision_file": os.path.join(os.getcwd(), "git_revision"),
-    "pubkey_path": "...",
-    "privkey_path": "...",
-    "my_email": "scriptworker@example.com",
-
     # ed25519 settings
     "ed25519_private_key_path": "...",
     "ed25519_public_keys": frozendict({
@@ -149,22 +125,6 @@ DEFAULT_CONFIG = frozendict({
         "netlocs": ("queue.taskcluster.net", ),
         "path_regexes": (r"^/v1/task/(?P<taskId>[^/]+)(/runs/\\d+)?/artifacts/(?P<filepath>.*)$", ),
     }), ),
-
-    # git gpg homedir layout
-    "gpg_homedirs": frozendict({
-        "docker-worker": frozendict({
-            "type": "flat",
-            "ignore_suffixes": (".md", ".json")
-        }),
-        "generic-worker": frozendict({
-            "type": "flat",
-            "ignore_suffixes": (".md", ".in", ".sh")
-        }),
-        "scriptworker": frozendict({
-            "type": "signed",
-            "ignore_suffixes": (".md", )
-        }),
-    }),
 
     # scriptworker identification
     "scriptworker_worker_types": (

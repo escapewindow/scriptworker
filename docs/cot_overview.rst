@@ -18,7 +18,7 @@ High level view
 
 Scopes and their associated Taskcluster credentials are not leak-proof. Also, by their nature, more people will have restricted scopes than you want, given any security-sensitive scope.  Without the chain of trust, someone with release-signing scopes would be able to schedule any arbitrary task to sign any arbitrary binary with the release keys, for example.
 
-The chain of trust is a second factor.  The embedded GPG keys on the workers are either the `something you have <http://searchsecurity.techtarget.com/definition/possession-factor>`__ or the `something you are <http://searchsecurity.techtarget.com/definition/inherence-factor>`__, depending on how you view the taskcluster workers.
+The chain of trust is a second factor.  The embedded ed25519 keys on the workers are either the `something you have <http://searchsecurity.techtarget.com/definition/possession-factor>`__ or the `something you are <http://searchsecurity.techtarget.com/definition/inherence-factor>`__, depending on how you view the taskcluster workers.
 
 Each chain-of-trust-enabled taskcluster worker generates and signs chain of trust artifacts, which can be used to verify each task and its artifacts, and trace a given request back to the tree.
 
@@ -33,9 +33,9 @@ Chain of Trust Versions
 2. CoT v2: rebuild task definitions via json-e. `7.0.0 on 2018-01-18 <https://github.com/mozilla-releng/scriptworker/blob/master/CHANGELOG.md#700---2018-01-18>`_
 3. Generic action hook support. `12.0.0 on 2018-05-29 <https://github.com/mozilla-releng/scriptworker/blob/master/CHANGELOG.md#1200---2018-05-29>`_
 4. Release promotion action hook support. `17.1.0 on 2018-12-28 <https://github.com/mozilla-releng/scriptworker/blob/master/CHANGELOG.md#1710---2018-12-28>`_
+5. ed25519 support; deprecate GPG support.
+6. drop support for gpg
 
 Planned future versions:
 
-* ed25519 support; deprecate GPG support.
 * drop support for non-hook actions
-* drop support for gpg

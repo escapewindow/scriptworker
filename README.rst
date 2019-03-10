@@ -49,8 +49,6 @@ Then::
 Testing
 -------
 
-Note: GPG tests require gpg 2.0.x!
-
 Without integration tests, install tox, then
 
 ``NO_TESTS_OVER_WIRE=1 tox -e py36``
@@ -81,14 +79,3 @@ then
 It's also possible to test in docker. First, `build the docker image`_, making sure to add integration credentials to `secrets.json`. Then::
 
     docker run -i scriptworker-test-$PY_DOT_VERSION
-
-GPG Homedir testing
-^^^^^^^^^^^^^^^^^^^
-
-Sometimes it's nice to be able to test things like ``rebuild_gpg_homedirs``.  To do so, `build the docker image`_, then::
-
-    docker run -i scriptworker-test-$PY_DOT_VERSION gpg
-    # in the docker shell,
-    rebuild_gpg_homedirs gnupg.yaml
-
-.. _build the docker image: #building-a-docker-image

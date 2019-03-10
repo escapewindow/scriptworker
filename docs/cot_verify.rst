@@ -14,42 +14,13 @@ The decision task is a special task that generates a taskgraph, then submits it 
 
 We rebuild the decision task's task definition via `json-e`_, and verify that it matches the runtime task definition.
 
-GPG homedir management
-~~~~~~~~~~~~~~~~~~~~~~
+Ed25519 homedir management
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The chain of trust artifacts are signed, but without marking the gpg
-public key as valid, we don't know if it's been signed by a valid worker key.
+The chain of trust artifacts are signed. We need to keep track of the ed25519
+public keys to verify them.
 
-We have a `github repo of pubkeys <https://github.com/mozilla-releng/cot-gpg-keys>`__.
-The latest valid commit is tagged and signed with a trusted gpg key.  More on this in :ref:`gpg-key-management`.
-
-Each scriptworker instance
-
--  gets the set of trusted gpg pubkeys from puppet,
--  imports them into ``~/.gnupg``,
--  and signs them with their private gpg key, so we can validate the git commit signatures.
--  we update to the latest valid-signed tag, and regenerate the worker-implementation gpg homedirs if we're on a new git revision.
-
-Then it builds a gpg homedir per worker implementation type (``generic-worker``, ``docker-worker``, ``taskcluster-worker``, ``scriptworker``).  Each has a corresponding directory in the git repo.
-
-Each gpg homedir is separate from the others, so malicious or outdated keys can only affect the security of that single worker implementation.
-
-The logic for gpg homedir creation is as follows:
-
-``flat`` directories
-^^^^^^^^^^^^^^^^^^^^
-
-The Taskcluster-team-maintained worker implementations use the flat directory type, to reduce maintenance overhead.
-
-For flat directories, scriptworker imports all pubkeys from the corresponding directory, and signs them to mark the pubkeys as valid.  This allows us to verify the signature on the signed chain of trust json artifacts.
-
-``signed`` directories
-^^^^^^^^^^^^^^^^^^^^^^
-
-This is currently only for scriptworker.
-
-- scriptworker imports all pubkeys in the ``trusted/`` subdirectory, signs them, and marks them as trusted.
-- scriptworker imports all pubkeys in the ``valid/`` subdirectory.  They should already be signed by one of the keys in the ``trusted/`` subdirectory, so scriptworker doesn't otherwise sign or mark them as valid.
+We keep the level 3 gecko pubkeys in ``scriptworker.constants.ed25519_public_keys``, as base64-encoded ascii string. Once decoded, these are the seeds for the ed25519 public keys. These are tuples of valid keys, to allow for key rotation.
 
 Building the chain
 ~~~~~~~~~~~~~~~~~~
@@ -81,7 +52,7 @@ Verifying the chain
 
 Scriptworker:
 
--  downloads the chain of trust artifacts for each upstream task in the chain, and verifies their signatures.  This requires detecting which worker implementation each task is run on, to know which gpg homedir to use.  At some point in the future, we may switch to an OpenSSL CA.
+-  downloads the chain of trust artifacts for each upstream task in the chain, and verifies their signatures.  This requires detecting which worker implementation each task is run on, to know which ed25519 public key to use.  At some point in the future, we may switch to an OpenSSL CA.
 -  downloads each of the ``upstreamArtifacts`` and verify their shas against the corresponding task's chain of trust's artifact shas.  the downloaded files live in ``cot/TASKID/PATH`` , so the script doesn't have to re-download and re-verify.
 -  downloads each decision task's ``task-graph.json``.  For every *other* task in the chain, we make sure that their task definition matches a task in their decision task's task graph.
 -  rebuilds decision and action task definitions using `json-e`_, and verifies the rebuilt task definition matches the runtime definition.

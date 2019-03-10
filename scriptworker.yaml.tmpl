@@ -67,39 +67,6 @@ task_log_dir: "/tmp/artifact/public/logs"
 
 
 #-----------------------------------------------------------------------------------------------
-# GPG and git settings.
-# These must be set, but they're not used if sign_chain_of_trust, verify_chain_of_trust,
-# and verify_cot_signature are all false.
-#-----------------------------------------------------------------------------------------------
-# the gpg home directories are built as subdirectories of base_gpg_home_dir.
-base_gpg_home_dir: "/tmp/gpg"
-
-# this lockfile prevents multiple rebuild-gpg-homedir processes from clobbering each other
-gpg_lockfile: "/tmp/gpg_homedir.lock"
-
-# the path to the git executable
-git_path: git
-
-# the git_key_repo_url is cloned into git_key_repo_dir.
-git_key_repo_dir: "/tmp/key_repo"
-
-# Uncomment and edit to override the default url.  This shouldn't be necessary unless you're
-# testing changes to the chain of trust.
-# git_key_repo_url: "https://github.com/mozilla-releng/cot-gpg-keys.git"
-
-# this directory holds pubkeys that are allowed to sign git commits in the git_key_repo_url
-git_commit_signing_pubkey_dir: "/tmp/valid_git_fingerprints/"
-last_good_git_revision_file: "/tmp/git_revision"
-# this scriptworker's public and private gpg keys
-pubkey_path: "/tmp/my_pubkey.asc"
-privkey_path: "/tmp/my_privkey.asc"
-# the path to the gpg executable
-gpg_path: gpg
-# the email of this scriptworker instance, used for gpg
-my_email: "scriptworker@example.com"
-
-
-#-----------------------------------------------------------------------------------------------
 # ed25519 settings.
 #-----------------------------------------------------------------------------------------------
 ed25519_private_key_path: /tmp/ed25519_privkey
@@ -129,31 +96,3 @@ ed25519_private_key_path: /tmp/ed25519_privkey
 #         - "^/v1/task/(?P<taskId>[^/]+)(/runs/\\d+)?/artifacts/(?P<filepath>.*)$"
 #     schemes:
 #         - https
-
-
-#-----------------------------------------------------------------------------------------------
-# gpg_homedirs specifies the layout of cot-gpg-keys.git
-# Each key is a top level directory.
-#
-# `type: flat` means scriptworker will sign each pubkey after importing, making them valid.
-#
-# `type: signed` means scriptworker will sign and trust each pubkey in the `trusted`
-# subdirectory, then import the pubkeys in the `valid` subdirectory without trusting or signing.
-# The expectation is one of the keys in the `trusted` subdirectory has already signed the keys
-# in the `valid` subdirectory.
-#
-# `ignore_suffixes` is a list of file suffixes to ignore when importing keys.
-#-----------------------------------------------------------------------------------------------
-# gpg_homedirs:
-#     docker-worker:
-#         type: flat
-#         ignore_suffixes:
-#             - .md
-#     generic-worker:
-#         type: flat
-#         ignore_suffixes:
-#             - .md
-#     scriptworker:
-#         type: signed
-#         ignore_suffixes:
-#             - .md

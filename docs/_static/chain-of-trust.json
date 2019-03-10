@@ -1,0 +1,112 @@
+{
+  "artifacts": {
+    "public/build/setup.exe": {
+      "sha256": "5aaee8c1950f33ecbad672395831462d30d7aff80f2fdf7c6860718005aa6789"
+    },
+    "public/build/target.zip": {
+      "sha256": "71eb5d7008dc790dbf003ba45811d0071c86a7dd1249d0ada68fe9f0531497ed"
+    },
+    "public/logs/chain_of_trust.log": {
+      "sha256": "6613dca735b7f6c8166d42a608d0cbfe4ff46882a07d9e94a6a77f537072020b"
+    },
+    "public/logs/live_backing.log": {
+      "sha256": "c159a5ebc188633941046afc83e62980b144296de465731337b8f7ea33e6d23a"
+    },
+    "public/logs/precomplete.diff": {
+      "sha256": "3ae983b00741c62364ac756c3e2607742ede423bb6470fdc0298e3abf04b352a"
+    }
+  },
+  "chainOfTrustVersion": 1,
+  "environment": {},
+  "runId": 0,
+  "task": {
+    "created": "2019-03-09T22:02:23.215Z",
+    "deadline": "2019-03-10T22:02:23.215Z",
+    "dependencies": [
+      "EHZBfHRZRoiRf3yVeh_Q8g"
+    ],
+    "expires": "2020-03-08T22:02:23.215Z",
+    "extra": {
+      "index": {
+        "rank": 1552168399
+      },
+      "parent": "bu-mLf3PR3m716VoXgYX1w",
+      "treeherder": {
+        "collection": {
+          "opt": true
+        },
+        "jobKind": "build",
+        "machine": {
+          "platform": "windows2012-64"
+        },
+        "symbol": "Ns",
+        "tier": 1
+      },
+      "treeherder-platform": "windows2012-64/opt"
+    },
+    "metadata": {
+      "description": "Initial Signing for locale 'en-US' for build 'win64-nightly/opt' ([Treeherder push](https://treeherder.mozilla.org/#/jobs?repo=mozilla-central&revision=30385b68bea1a7f52c109b28a67f0ea611d88534))",
+      "name": "build-signing-win64-nightly/opt",
+      "owner": "cron@noreply.mozilla.org",
+      "source": "https://hg.mozilla.org/mozilla-central/file/30385b68bea1a7f52c109b28a67f0ea611d88534/taskcluster/ci/build-signing"
+    },
+    "payload": {
+      "maxRunTime": 3600,
+      "upstreamArtifacts": [
+        {
+          "formats": [
+            "sha2signcode"
+          ],
+          "paths": [
+            "public/build/setup.exe"
+          ],
+          "taskId": "EHZBfHRZRoiRf3yVeh_Q8g",
+          "taskType": "build"
+        },
+        {
+          "formats": [
+            "sha2signcode",
+            "widevine"
+          ],
+          "paths": [
+            "public/build/target.zip"
+          ],
+          "taskId": "EHZBfHRZRoiRf3yVeh_Q8g",
+          "taskType": "build"
+        }
+      ]
+    },
+    "priority": "medium",
+    "provisionerId": "scriptworker-prov-v1",
+    "requires": "all-completed",
+    "retries": 5,
+    "routes": [
+      "index.gecko.v2.mozilla-central.signed-nightly.nightly.latest.firefox.win64-opt",
+      "index.gecko.v2.mozilla-central.signed-nightly.nightly.2019.03.09.revision.30385b68bea1a7f52c109b28a67f0ea611d88534.firefox.win64-opt",
+      "index.gecko.v2.mozilla-central.signed-nightly.nightly.2019.03.09.latest.firefox.win64-opt",
+      "index.gecko.v2.mozilla-central.signed-nightly.nightly.revision.30385b68bea1a7f52c109b28a67f0ea611d88534.firefox.win64-opt",
+      "index.gecko.v2.mozilla-central.signed-nightly.revision.30385b68bea1a7f52c109b28a67f0ea611d88534.firefox-l10n.win64-opt.en-US",
+      "index.gecko.v2.mozilla-central.signed-nightly.pushdate.2019.03.09.20190309215319.firefox-l10n.win64-opt.en-US",
+      "index.gecko.v2.mozilla-central.signed-nightly.pushlog-id.35673.firefox-l10n.win64-opt.en-US",
+      "index.gecko.v2.mozilla-central.signed-nightly.latest.firefox-l10n.win64-opt.en-US",
+      "tc-treeherder.v2.mozilla-central.30385b68bea1a7f52c109b28a67f0ea611d88534.35673"
+    ],
+    "schedulerId": "gecko-level-3",
+    "scopes": [
+      "project:releng:signing:cert:nightly-signing",
+      "project:releng:signing:format:sha2signcode",
+      "project:releng:signing:format:widevine"
+    ],
+    "tags": {
+      "createdForUser": "cron@noreply.mozilla.org",
+      "kind": "build-signing",
+      "label": "build-signing-win64-nightly/opt"
+    },
+    "taskGroupId": "bu-mLf3PR3m716VoXgYX1w",
+    "workerType": "signing-linux-v1"
+  },
+  "taskId": "Qt3GKapxQmWDJId8m5o8Yg",
+  "workerGroup": "signing-linux-v1",
+  "workerId": "signing-linux-12",
+  "workerType": "signing-linux-v1"
+}

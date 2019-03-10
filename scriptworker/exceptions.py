@@ -18,17 +18,6 @@ class ScriptWorkerException(Exception):
     exit_code = STATUSES['internal-error']
 
 
-class ScriptWorkerGPGException(ScriptWorkerException):
-    """Scriptworker GPG error.
-
-    Attributes:
-        exit_code (int): this is set to 5 (internal-error).
-
-    """
-
-    exit_code = STATUSES['internal-error']
-
-
 class ScriptWorkerRetryException(ScriptWorkerException):
     """Scriptworker retry error.
 

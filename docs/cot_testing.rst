@@ -59,3 +59,5 @@ Run the test
 .. code:: bash
 
         verify_cot --task-type TASKTYPE TASKID  # e.g., verify_cot --task-type signing cbYd3U6dRRCKPUbKsEj1Iw
+
+-  To test with signature verification, use the ``--verify-sigs`` option. This only works for level 3 trusted workers, since we don't keep track of the other pubkeys..
