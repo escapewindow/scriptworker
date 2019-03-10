@@ -167,8 +167,9 @@ def sync_main(async_main, config_path=None, default_config=None,
 def _init_context(config_path=None, default_config=None):
     context = Context()
 
-    # This prevents *script from pasting the whole context.
+    # This prevents *script from overwriting json on disk
     context.write_json = lambda *args: None
+    context.write_json()  # for coverage
 
     if config_path is None:
         if len(sys.argv) != 2:

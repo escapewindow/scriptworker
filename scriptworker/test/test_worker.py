@@ -58,7 +58,8 @@ def test_main(mocker, context, event_loop):
         os.remove(tmp)
 
 
-def test_main_sigterm(mocker, context, event_loop):
+@pytest.mark.parametrize('running', (True, False))
+def test_main_running_sigterm(mocker, context, event_loop, running):
     """Test that sending SIGTERM causes the main loop to stop after the next
     call to async_main."""
     run_tasks_cancelled = event_loop.create_future()
@@ -71,7 +72,8 @@ def test_main_sigterm(mocker, context, event_loop):
     async def async_main(internal_context, _):
         # scriptworker reads context from a file, so we have to modify the context given here instead of the variable
         # from the fixture
-        internal_context.running_tasks = MockRunTasks()
+        if running:
+            internal_context.running_tasks = MockRunTasks()
         # Send SIGTERM to ourselves so that we stop
         os.kill(os.getpid(), signal.SIGTERM)
 
@@ -81,12 +83,17 @@ def test_main_sigterm(mocker, context, event_loop):
             json.dump(context.config, fh)
         mocker.patch.object(worker, 'async_main', new=async_main)
         mocker.patch.object(sys, 'argv', new=['x', tmp])
-        worker.main(event_loop=event_loop)
+        if running:
+            worker.main(event_loop=event_loop)
+        else:
+            with pytest.raises(SystemExit):
+                worker.main(event_loop=event_loop)
     finally:
         os.remove(tmp)
 
-    event_loop.run_until_complete(run_tasks_cancelled)
-    assert run_tasks_cancelled.result()
+    if running:
+        event_loop.run_until_complete(run_tasks_cancelled)
+        assert run_tasks_cancelled.result()
 
 
 # async_main {{{1

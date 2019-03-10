@@ -239,6 +239,8 @@ def main(event_loop=None):
         done = True
         if context.running_tasks is not None:
             await context.running_tasks.cancel()
+        # for test coverage
+        sys.exit(1)
 
     context.event_loop.add_signal_handler(signal.SIGTERM, lambda: asyncio.ensure_future(_handle_sigterm()))
 
