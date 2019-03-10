@@ -73,6 +73,7 @@ from scriptworker.utils import (
     write_to_file,
 )
 from taskcluster.exceptions import TaskclusterFailure
+from taskcluster.aio import Queue
 
 log = logging.getLogger(__name__)
 
@@ -2168,6 +2169,7 @@ async def _async_verify_cot_cmdln(opts, tmp):
         context.session = session
         context.config = dict(deepcopy(DEFAULT_CONFIG))
         context.credentials = read_worker_creds()
+        context.queue = context.queue or Queue(session=session)
         context.task = await context.queue.task(opts.task_id)
         context.config.update({
             'cot_product': opts.cot_product,
