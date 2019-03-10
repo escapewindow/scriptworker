@@ -1,13 +1,10 @@
 aiohttp
 arrow
 cryptography>=2.6.1
-defusedxml
 dictdiffer
 frozendict
 jsonschema
 json-e>=2.5.0
-pexpect
-python-gnupg
 PyYAML
 taskcluster>=7
 wheel
