@@ -92,31 +92,15 @@ def test_main_sigterm(mocker, context, event_loop):
 # async_main {{{1
 @pytest.mark.asyncio
 async def test_async_main(context, mocker, tmpdir):
-    path = "{}.tmp".format(context.config['base_gpg_home_dir'])
-
-    async def tweak_lockfile(_):
-        path = "{}.tmp".format(context.config['base_gpg_home_dir'])
-        try:
-            os.makedirs(path)
-        except FileExistsError:
-            pass
-        lockfile = context.config['gpg_lockfile']
-        if os.path.exists(lockfile):
-            with open(lockfile, "w") as fh:
-                print("ready:", file=fh)
-        else:
-            with open(lockfile, "w") as fh:
-                print("locked:", file=fh)
 
     def exit(*args, **kwargs):
         sys.exit()
 
     try:
-        mocker.patch.object(worker, 'run_tasks', new=tweak_lockfile)
+        mocker.patch.object(worker, 'run_tasks', new=noop_async)
         mocker.patch.object(asyncio, 'sleep', new=noop_async)
         mocker.patch.object(worker, 'rm', new=noop_sync)
         mocker.patch.object(os, 'rename', new=noop_sync)
-        mocker.patch.object(worker, 'rm_lockfile', new=exit)
         await worker.async_main(context, {})
         await worker.async_main(context, {})
         with pytest.raises(SystemExit):
