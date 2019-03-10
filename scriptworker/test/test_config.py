@@ -123,12 +123,6 @@ def test_check_config_invalid_type(t_config):
     assert "log_dir: type" in "\n".join(messages)
 
 
-def test_check_config_bad_keyring(t_config):
-    t_config['gpg_secret_keyring'] = 'foo{}'.format(t_config['gpg_secret_keyring'])
-    messages = config.check_config(t_config, "test_path")
-    assert "needs to start with %(gpg_home)s/" in "\n".join(messages)
-
-
 @pytest.mark.parametrize("params", ("provisioner_id", "worker_group", "worker_type", "worker_id"))
 def test_check_config_invalid_ids(params, t_config):
     t_config[params] = 'twenty-three-characters'

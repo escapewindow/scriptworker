@@ -7,7 +7,6 @@ import os
 import pytest
 from scriptworker.exceptions import ScriptWorkerException
 import scriptworker.cot.generate as cot
-import scriptworker.gpg as sgpg
 from . import ARTIFACT_SHAS, rw_context
 
 assert rw_context  # silence pyflakes
@@ -21,10 +20,8 @@ ARTIFACT_DIR = os.path.join(os.path.dirname(__file__), "data", "artifacts")
 
 @pytest.yield_fixture(scope='function')
 def context(rw_context):
-    GPG_HOME = os.path.join(os.path.dirname(__file__), "data", "gpg")
     ED25519_DIR = os.path.join(os.path.dirname(__file__), "data", "ed25519")
     rw_context.config['artifact_dir'] = ARTIFACT_DIR
-    rw_context.config['gpg_home'] = GPG_HOME
     rw_context.config['sign_chain_of_trust'] = True
     rw_context.config['ed25519_private_key_path'] = os.path.join(ED25519_DIR, 'scriptworker_private_key')
 
@@ -85,13 +82,10 @@ def test_generate_cot_body_exception(artifacts, context):
 
 
 def test_generate_cot(artifacts, context):
-    path = os.path.join(context.config['work_dir'], "chainOfTrust.json.asc")
-    signed_body = cot.generate_cot(context, parent_path=context.config['work_dir'])
+    path = os.path.join(context.config['work_dir'], "chain-of-trust.json")
+    body = cot.generate_cot(context, parent_path=context.config['work_dir'])
     with open(path, "r") as fh:
-        assert fh.read() == signed_body
-    body = sgpg.get_body(sgpg.GPG(context), signed_body)
-    log.info(body)
-    assert body.rstrip() == cot.format_json(cot.generate_cot_body(context))
+        assert fh.read() == body
 
 
 def test_generate_cot_unsigned(artifacts, context):

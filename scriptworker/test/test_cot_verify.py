@@ -15,7 +15,7 @@ from unittest.mock import MagicMock, patch
 import scriptworker.context as swcontext
 import scriptworker.cot.verify as cotverify
 from scriptworker.artifacts import get_single_upstream_artifact_full_path
-from scriptworker.exceptions import CoTError, ScriptWorkerGPGException, DownloadError
+from scriptworker.exceptions import CoTError, DownloadError
 from scriptworker.test import create_async, create_finished_future
 from scriptworker.utils import (
     format_json,
@@ -987,55 +987,6 @@ async def test_get_all_artifacts_per_task_id(chain, decision_link, build_link,
     assert expected == cotverify.get_all_artifacts_per_task_id(chain, upstream_artifacts)
 
 
-# verify_link_gpg_cot_signature {{{1
-@pytest.mark.parametrize('sig_verifies, unsigned_path_exists, unsigned_path_matches, raises', ((
-    True, True, True, False
-), (
-    True, False, False, False
-), (
-    True, True, False, True
-), (
-    False, False, False, True
-)))
-def test_verify_link_gpg_cot_signature(chain, build_link, mocker, sig_verifies,
-                                       unsigned_path_exists, unsigned_path_matches, raises):
-    contents = {
-        'taskId': 'build_task_id',
-        'a': 'b',
-    }
-    bad_contents = {
-        'taskId': 'build_task_id',
-        'q': 'r',
-    }
-
-    def fake_body(*args, **kwargs):
-        if sig_verifies:
-            return format_json(contents)
-        else:
-            raise ScriptWorkerGPGException("Foo")
-
-    gpg_path = os.path.join(build_link.cot_dir, 'public/chainOfTrust.json.asc')
-    unsigned_path = os.path.join(build_link.cot_dir, 'public/chain-of-trust.json')
-    makedirs(os.path.dirname(gpg_path))
-    touch(gpg_path)
-    if unsigned_path_exists:
-        with open(unsigned_path, 'w') as fh:
-            if unsigned_path_matches:
-                write_to_file(unsigned_path, contents, file_type='json')
-            else:
-                write_to_file(unsigned_path, bad_contents, file_type='json')
-    build_link._cot = None
-    mocker.patch.object(cotverify, 'read_from_file', new=noop_sync)
-    mocker.patch.object(cotverify, 'GPG', new=noop_sync)
-    mocker.patch.object(cotverify, 'get_body', new=fake_body)
-    if raises:
-        with pytest.raises(CoTError):
-            cotverify.verify_link_gpg_cot_signature(chain, build_link, unsigned_path)
-    else:
-        cotverify.verify_link_gpg_cot_signature(chain, build_link, unsigned_path)
-        assert build_link.cot == contents
-
-
 # verify_link_ed25519_cot_signature {{{1
 @pytest.mark.parametrize('unsigned_path, signature_path, verifying_key_paths, raises, verify_sigs', ((
     # Good
@@ -1095,16 +1046,13 @@ def test_verify_link_ed25519_cot_signature(chain, build_link, mocker, unsigned_p
 
 
 # verify_cot_signatures {{{1
-@pytest.mark.parametrize('ed25519_mock, gpg_mock, raises', ((
-    noop_sync, die_sync, False
+@pytest.mark.parametrize('ed25519_mock, raises', ((
+    noop_sync, False
 ), (
-    die_sync, noop_sync, False
-), (
-    die_sync, die_sync, True
+    die_sync, True
 )))
-def test_verify_link_gpg_cot_signature_bad_sig(chain, mocker, build_link, ed25519_mock, gpg_mock, raises):
+def test_verify_link_cot_signature_bad_sig(chain, mocker, build_link, ed25519_mock, raises):
     mocker.patch.object(cotverify, 'verify_link_ed25519_cot_signature', new=ed25519_mock)
-    mocker.patch.object(cotverify, 'verify_link_gpg_cot_signature', new=gpg_mock)
     chain.links = [build_link]
     if raises:
         with pytest.raises(CoTError):

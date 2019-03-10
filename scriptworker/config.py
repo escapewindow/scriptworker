@@ -145,8 +145,6 @@ def check_config(config, path):
                     )
         if value in ("...", b"..."):
             messages.append(_VALUE_UNDEFINED_MESSAGE.format(path=path, key=key))
-        if key in ("gpg_public_keyring", "gpg_secret_keyring") and not value.startswith('%(gpg_home)s/'):
-            messages.append("{} needs to start with %(gpg_home)s/ to be portable!".format(key))
         if key in ("provisioner_id", "worker_group", "worker_type", "worker_id") and not _is_id_valid(value):
             messages.append('{} doesn\'t match "{}" (required by Taskcluster)'.format(key, _GENERIC_ID_REGEX.pattern))
     return messages
@@ -220,9 +218,6 @@ def create_config(config_path="scriptworker.yaml"):
 # get_context_from_cmdln {{{1
 def get_context_from_cmdln(args, desc="Run scriptworker"):
     """Create a Context object from args.
-
-    This was originally part of main(), but we use it in
-    ``scriptworker.gpg.rebuild_gpg_homedirs`` too.
 
     Args:
         args (list): the commandline args.  Generally sys.argv

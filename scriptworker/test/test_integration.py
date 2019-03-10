@@ -66,7 +66,6 @@ To skip integration tests, set the environment variable NO_TESTS_OVER_WIRE""".fo
 def build_config(override, basedir):
     randstring = slugid.nice()[0:6]
     config = get_unfrozen_copy(DEFAULT_CONFIG)
-    GPG_HOME = os.path.join(os.path.dirname(__file__), "data", "gpg")
     ED25519_DIR = os.path.join(os.path.dirname(__file__), "data", "ed25519")
     config.update({
         'log_dir': os.path.join(basedir, "log"),
@@ -76,13 +75,6 @@ def build_config(override, basedir):
         "worker_type": "dummy-worker-{}".format(randstring),
         "worker_id": "dummy-worker-{}".format(randstring),
         'artifact_upload_timeout': 60 * 2,
-        'gpg_home': GPG_HOME,
-        "gpg_encoding": 'utf-8',
-        "gpg_options": None,
-        "gpg_path": os.environ.get("GPG_PATH", None),
-        "gpg_public_keyring": os.path.join(GPG_HOME, "pubring.gpg"),
-        "gpg_secret_keyring": os.path.join(GPG_HOME, "secring.gpg"),
-        "gpg_use_agent": None,
         'poll_interval': 5,
         'reclaim_interval': 5,
         'task_script': ('bash', '-c', '>&2 echo bar && echo foo && sleep 9 && exit 1'),

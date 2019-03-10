@@ -19,7 +19,6 @@ from scriptworker.config import get_context_from_cmdln
 from scriptworker.constants import STATUSES
 from scriptworker.cot.generate import generate_cot
 from scriptworker.cot.verify import ChainOfTrust, verify_chain_of_trust
-from scriptworker.gpg import get_tmp_base_gpg_home_dir, is_lockfile_present, rm_lockfile
 from scriptworker.exceptions import ScriptWorkerException, WorkerShutdownDuringTask
 from scriptworker.task import claim_work, complete_task, prepare_to_run_task, \
     reclaim_task, run_task, worst_level
@@ -215,14 +214,6 @@ async def async_main(context, credentials):
     async with aiohttp.ClientSession(connector=conn) as session:
         context.session = session
         context.credentials = credentials
-        tmp_gpg_home = get_tmp_base_gpg_home_dir(context)
-        state = is_lockfile_present(context, "scriptworker", logging.DEBUG)
-        if os.path.exists(tmp_gpg_home) and state == "ready":
-            try:
-                rm(context.config['base_gpg_home_dir'])
-                os.rename(tmp_gpg_home, context.config['base_gpg_home_dir'])
-            finally:
-                rm_lockfile(context)
         await run_tasks(context)
 
 
