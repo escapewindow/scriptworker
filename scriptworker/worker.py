@@ -23,7 +23,7 @@ from scriptworker.exceptions import ScriptWorkerException, WorkerShutdownDuringT
 from scriptworker.task import claim_work, complete_task, prepare_to_run_task, \
     reclaim_task, run_task, worst_level
 from scriptworker.task_process import TaskProcess
-from scriptworker.utils import cleanup, rm, filepaths_in_dir
+from scriptworker.utils import cleanup, filepaths_in_dir
 
 log = logging.getLogger(__name__)
 

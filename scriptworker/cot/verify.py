@@ -70,7 +70,6 @@ from scriptworker.utils import (
     read_from_file,
     remove_empty_keys,
     rm,
-    write_to_file,
 )
 from taskcluster.exceptions import TaskclusterFailure
 from taskcluster.aio import Queue

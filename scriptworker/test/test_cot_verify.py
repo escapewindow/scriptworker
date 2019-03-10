@@ -764,11 +764,10 @@ async def test_build_task_dependencies(chain, mocker):
 
 
 # download_cot {{{1
-@pytest.mark.parametrize('upstream_artifacts, raises, download_artifacts_mock, verify_sig, fails_optional', ((
+@pytest.mark.parametrize('upstream_artifacts, raises, download_artifacts_mock, verify_sig', ((
     [{'taskId': 'task_id', 'paths': ['path1', 'path2']}],
     True,
     die_async,
-    False,
     False,
 ), (
     [{'taskId': 'task_id', 'paths': ['path1', 'path2']},
@@ -776,33 +775,26 @@ async def test_build_task_dependencies(chain, mocker):
     True,
     die_async,
     False,
-    False
 ), (
     [{'taskId': 'task_id', 'paths': ['path1', 'path2']},],
     False,
     None,
     True,
-    False,
 ), (
     [{'taskId': 'task_id', 'paths': ['path1', 'path2']},],
     False,
     None,
     False,
-    True,
 ), (
     [],
     False,
     None,
     False,
-    False
 )))
 @pytest.mark.asyncio
 async def test_download_cot(chain, mocker, upstream_artifacts, raises, download_artifacts_mock,
-                            verify_sig, fails_optional):
+                            verify_sig):
     async def down(_, urls, **kwargs):
-        for url in urls:
-            if fails_optional and url.endswith('chain-of-trust.json'):
-                raise DownloadError("foo")
         return ['x']
 
     def fake_artifact_url(_x, _y, path):

@@ -92,22 +92,8 @@ def test_main_sigterm(mocker, context, event_loop):
 # async_main {{{1
 @pytest.mark.asyncio
 async def test_async_main(context, mocker, tmpdir):
-
-    def exit(*args, **kwargs):
-        sys.exit()
-
-    try:
-        mocker.patch.object(worker, 'run_tasks', new=noop_async)
-        mocker.patch.object(asyncio, 'sleep', new=noop_async)
-        mocker.patch.object(worker, 'rm', new=noop_sync)
-        mocker.patch.object(os, 'rename', new=noop_sync)
-        await worker.async_main(context, {})
-        await worker.async_main(context, {})
-        with pytest.raises(SystemExit):
-            await worker.async_main(context, {})
-    finally:
-        if os.path.exists(path):
-            shutil.rmtree(path)
+    mocker.patch.object(worker, 'run_tasks', new=noop_async)
+    await worker.async_main(context, {})
 
 
 # run_tasks {{{1
