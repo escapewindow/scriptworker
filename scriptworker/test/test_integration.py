@@ -359,6 +359,10 @@ async def test_temp_creds(context_function):
     "name": "mozilla-release win64 en-US repackage signing",
     "index": "gecko.v2.mozilla-release.nightly.latest.firefox.win64-nightly-repackage-signing",
     "task_type": "signing",
+}, {
+    "name": "mozilla-esr60 win64 en-US repackage signing",
+    "index": "gecko.v2.mozilla-esr60.nightly.latest.firefox.win64-nightly-repackage-signing",
+    "task_type": "signing",
 }))
 @pytest.mark.asyncio
 async def test_verify_production_cot(branch_context):
