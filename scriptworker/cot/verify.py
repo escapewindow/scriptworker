@@ -595,7 +595,6 @@ async def build_task_dependencies(chain, task, name, my_task_id):
 
 
 # download_cot {{{1
-
 async def download_cot(chain):
     """Download the signed chain of trust artifacts.
 
@@ -607,7 +606,6 @@ async def download_cot(chain):
 
     """
     mandatory_artifact_tasks = []
-    optional_artifact_tasks = []
     # only deal with chain.links, which are previously finished tasks with
     # signed chain of trust artifacts.  ``chain.task`` is the current running
     # task, and will not have a signed chain of trust artifact yet.
@@ -615,12 +613,11 @@ async def download_cot(chain):
         task_id = link.task_id
         parent_dir = link.cot_dir
         mandatory_urls = []
-        optional_urls = []
 
         unsigned_url = get_artifact_url(chain.context, task_id, 'public/chain-of-trust.json')
         mandatory_urls.append(unsigned_url)
         if chain.context.config['verify_cot_signature']:
-            optional_urls.append(
+            mandatory_urls.append(
                 get_artifact_url(chain.context, task_id, 'public/chain-of-trust.json.sig')
             )
 
@@ -632,25 +629,10 @@ async def download_cot(chain):
                 )
             )
         )
-        optional_artifact_tasks.append(
-            asyncio.ensure_future(
-                download_artifacts(
-                    chain.context, optional_urls, parent_dir=parent_dir,
-                    valid_artifact_task_ids=[task_id]
-                )
-            )
-        )
 
     mandatory_artifacts_paths = await raise_future_exceptions(mandatory_artifact_tasks)
-    succeeded_optional_artifacts_paths, failed_optional_artifacts = \
-        await get_results_and_future_exceptions(optional_artifact_tasks)
 
-    if failed_optional_artifacts:
-        error_messages = '\n'.join([' * {}'.format(failure) for failure in failed_optional_artifacts])
-        log.warning('Could not download {} optional chain of trust artifact(s):\n{}'.format(len(failed_optional_artifacts), error_messages))
-
-    paths = mandatory_artifacts_paths + succeeded_optional_artifacts_paths
-    for path in paths:
+    for path in mandatory_artifacts_paths:
         sha = get_hash(path[0])
         log.debug("{} downloaded; hash is {}".format(path[0], sha))
 
