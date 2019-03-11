@@ -14,8 +14,8 @@ The decision task is a special task that generates a taskgraph, then submits it 
 
 We rebuild the decision task's task definition via `json-e`_, and verify that it matches the runtime task definition.
 
-Ed25519 homedir management
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Ed25519 key management
+~~~~~~~~~~~~~~~~~~~~~~
 
 The chain of trust artifacts are signed. We need to keep track of the ed25519
 public keys to verify them.
