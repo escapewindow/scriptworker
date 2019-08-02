@@ -99,6 +99,7 @@ async def do_upload(context, files):
     return status
 
 
+# RunTasks {{{1
 class RunTasks:
     """Manages processing of Taskcluster tasks."""
 
@@ -114,7 +115,7 @@ class RunTasks:
         Args:
             context (scriptworker.context.Context): context of worker
 
-        Returns: status code of build
+        Returns: worst status code of tasks run
 
         """
         try:
@@ -125,31 +126,33 @@ class RunTasks:
                 await self._run_cancellable(asyncio.sleep(context.config['poll_interval']))
                 return None
 
-            # Assume only a single task, but should more than one fall through,
-            # run them sequentially.  A side effect is our return status will
-            # be the status of the final task run.
-            status = None
+            # XXX Make these concurrent
+            status = 0
             for task_defn in tasks.get('tasks', []):
-                prepare_to_run_task(context, task_defn)
-                reclaim_fut = context.event_loop.create_task(reclaim_task(context, context.task))
-                try:
-                    status = await do_run_task(context, self._run_cancellable, self._to_cancellable_process)
-                    artifacts_paths = filepaths_in_dir(context.config['artifact_dir'])
-                except WorkerShutdownDuringTask:
-                    shutdown_artifact_paths = [os.path.join('public', 'logs', log_file)
-                                               for log_file in ['chain_of_trust.log', 'live_backing.log']]
-                    artifacts_paths = [path for path in shutdown_artifact_paths
-                                       if os.path.isfile(os.path.join(context.config['artifact_dir'], path))]
-                    status = STATUSES['worker-shutdown']
-                status = worst_level(status, await do_upload(context, artifacts_paths))
-                await complete_task(context, status)
-                reclaim_fut.cancel()
-                cleanup(context)
+                status = worst_level(status, await self._run_task(context, task_defn))
 
+            cleanup(context)
             return status
 
         except asyncio.CancelledError:
             return None
+
+    async def _run_task(self, context, task_defn):
+        prepare_to_run_task(context, task_defn)
+        reclaim_fut = context.event_loop.create_task(reclaim_task(context, context.task))
+        try:
+            status = await do_run_task(context, self._run_cancellable, self._to_cancellable_process)
+            artifacts_paths = filepaths_in_dir(context.config['artifact_dir'])
+        except WorkerShutdownDuringTask:
+            shutdown_artifact_paths = [os.path.join('public', 'logs', log_file)
+                                       for log_file in ['chain_of_trust.log', 'live_backing.log']]
+            artifacts_paths = [path for path in shutdown_artifact_paths
+                               if os.path.isfile(os.path.join(context.config['artifact_dir'], path))]
+            status = STATUSES['worker-shutdown']
+        status = worst_level(status, await do_upload(context, artifacts_paths))
+        await complete_task(context, status)
+        reclaim_fut.cancel()
+        return status
 
     async def _run_cancellable(self, coroutine: typing.Awaitable):
         self.future = asyncio.ensure_future(coroutine)
@@ -191,7 +194,7 @@ async def run_tasks(context):
         Exception: on unexpected exception.
 
     Returns:
-        int: exit status
+        int: worst status of tasks run
         None: if no task run.
 
     """
