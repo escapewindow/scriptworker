@@ -172,6 +172,10 @@ DEFAULT_CONFIG = frozendict({
                 "aws-provisioner-v1/app-services-1-decision",
                 "aws-provisioner-v1/app-services-3-decision",
             ),
+            "xpi": (
+                "aws-provisioner-v1/xpi-1-decision",
+                "aws-provisioner-v1/xpi-3-decision",
+            ),
         }),
     }),
 
@@ -195,6 +199,10 @@ DEFAULT_CONFIG = frozendict({
             "application-services": (
                 "aws-provisioner-v1/app-services-1-images",
                 "aws-provisioner-v1/app-services-3-images",
+            ),
+            "xpi": (
+                "aws-provisioner-v1/xpi-1-images",
+                "aws-provisioner-v1/xpi-3-images",
             ),
         }),
     }),
@@ -237,6 +245,13 @@ DEFAULT_CONFIG = frozendict({
                     r"^(?P<path>/mozilla/application-services)(/|.git|$)",
                 ),
             }),),
+            'xpi': (frozendict({
+                "schemes": ("https", "ssh", ),
+                "netlocs": ("github.com", ),
+                "path_regexes": tuple([
+                    r"^(?P<path>/escapewindow/xpi-manifest)(/|.git|$)",
+                ]),
+            }),),
         }),
     },
 
@@ -260,6 +275,13 @@ DEFAULT_CONFIG = frozendict({
                 # for level 3 images
                 'github-release',
             ),
+            'xpi': (
+                'action',
+                'cron',
+                'github-pull-request',
+                'github-push',
+                'github-release',
+            ),
         }),
     },
 
@@ -269,6 +291,7 @@ DEFAULT_CONFIG = frozendict({
             'thunderbird': '',
             'mobile': 'mozilla-mobile',
             'application-services': 'mozilla',
+            'xpi': 'escapewindow',
         }),
     },
 
@@ -339,6 +362,9 @@ DEFAULT_CONFIG = frozendict({
             }),
             'application-services': frozendict({
                 'project:mozilla:application-services:releng:beetmover:bucket:maven-production': 'application-services-repo',
+            }),
+            'xpi': frozendict({
+                'project:xpi:signing:cert:release-signing': 'xpi-manifest-repo',
             }),
         }),
     },
@@ -460,6 +486,11 @@ DEFAULT_CONFIG = frozendict({
                     '/mozilla/application-services',
                 )
             }),
+            'xpi': frozendict({
+                'xpi-manifest-repo': (
+                    '/escapewindow/xpi-manifest',
+                )
+            }),
         }),
     },
     'prebuilt_docker_image_task_types': {
@@ -468,6 +499,7 @@ DEFAULT_CONFIG = frozendict({
             'thunderbird': ('decision', 'action', 'docker-image'),
             'mobile': 'any',  # all allowed
             'application-services': 'any',  # all allowed
+            'xpi': 'any',  # all allowed
         }),
     },
     'source_env_prefix': {
@@ -476,6 +508,7 @@ DEFAULT_CONFIG = frozendict({
             'thunderbird': 'COMM',
             'mobile': 'MOBILE',
             'application-services': 'APPSERVICES',
+            'xpi': 'XPI',
         })
     },
 })

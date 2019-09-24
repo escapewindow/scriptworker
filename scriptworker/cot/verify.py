@@ -1217,13 +1217,19 @@ async def _get_additional_github_push_jsone_context(decision_link):
     ).get_commit(commit_hash)
 
     committer_login = commit_data['committer']['login']
-    committer_email = commit_data['commit']['committer']['email']
+    # committer_email = commit_data['commit']['committer']['email']
     # https://github.com/mozilla-releng/scriptworker/issues/334: web-flow is the User used by
     # GitHub to create some commits on github.com or the Github Desktop app. For sure, this user
     # is not the one who triggered a push event. Let's fall back to the author login, instead.
     if committer_login == 'web-flow':
         committer_login = commit_data['author']['login']
-        committer_email = commit_data['commit']['author']['email']
+        # committer_email = commit_data['commit']['author']['email']
+
+    # Github users can have multiple emails. The commit_data contains
+    # their primary email, but the task may contain a secondary email.
+    # We may want to verify that this email is one of `login`'s email
+    # addresses, but for now we'll just use the task data.
+    task_email = task["metadata"]["owner"]
 
     # The commit data expose by the API[1] is not the same as the original event[2]. That's why
     # we have to rebuild the object manually
@@ -1234,7 +1240,7 @@ async def _get_additional_github_push_jsone_context(decision_link):
         'event': {
             'after': commit_hash,
             'pusher': {
-                'email': committer_email,
+                'email': task_email,
             },
             'ref': get_branch(task, source_env_prefix),
             'repository': {
@@ -1304,7 +1310,7 @@ async def populate_jsone_context(chain, parent_link, decision_link, tasks_for):
         'taskId': None
     }
 
-    if chain.context.config['cot_product'] in ('mobile', 'application-services'):
+    if chain.context.config['cot_product'] in ('mobile', 'application-services', 'xpi'):
         if tasks_for == 'github-release':
             jsone_context.update(
                 await _get_additional_github_releases_jsone_context(decision_link)

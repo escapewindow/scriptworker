@@ -112,6 +112,7 @@ def _craft_chain(context, scopes, source_url='https://hg.mozilla.org/mozilla-cen
         },
         'metadata': {
             'source': source_url,
+            'owner': 'foo@example.tld',
         },
     }
     # decision_task_id
@@ -151,6 +152,7 @@ def _craft_build_link(chain, source_url='https://hg.mozilla.org/mozilla-central'
         'dependencies': ['some_task_id'],
         'metadata': {
             'source': source_url,
+            'owner': 'foo@example.tld',
         },
         'payload': {
             'artifacts': {
@@ -278,6 +280,7 @@ def _craft_decision_link(chain, *, tasks_for, source_url='https://hg.mozilla.org
         'scopes': [],
         'metadata': {
             'source': source_url,
+            'owner': 'foo@example.tld',
         },
         'payload': {
             'image': "blah",
@@ -1466,7 +1469,7 @@ async def test_populate_jsone_context_github_push(mocker, mobile_chain, mobile_g
         'event': {
             'after': 'somerevision',
             'pusher': {
-                'email': 'some-user@email.tld',
+                'email': 'foo@example.tld',
             },
             'ref': 'refs/heads/some-branch',
             'repository': {
