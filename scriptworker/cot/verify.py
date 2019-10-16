@@ -1165,6 +1165,10 @@ async def _get_additional_git_cron_jsone_context(decision_link):
     }
 
 
+async def _get_additional_git_action_jsone_context(decision_link, parent_link):
+    return deepcopy(parent_link.task['extra']['action']['context'])
+
+
 async def _get_additional_github_pull_request_jsone_context(decision_link):
     context = decision_link.context
     source_env_prefix = context.config['source_env_prefix']
@@ -1315,6 +1319,8 @@ async def populate_jsone_context(chain, parent_link, decision_link, tasks_for):
             )
         elif tasks_for == 'cron':
             jsone_context.update(await _get_additional_git_cron_jsone_context(decision_link))
+        elif tasks_for == 'action':
+            jsone_context.update(await _get_additional_git_action_jsone_context(decision_link, parent_link))
         elif tasks_for == 'github-pull-request':
             jsone_context.update(
                 await _get_additional_github_pull_request_jsone_context(decision_link)

@@ -196,6 +196,14 @@ def cron_link(chain):
 
 
 @pytest.yield_fixture(scope='function')
+def github_action_link(mobile_chain):
+    link = cotverify.LinkOfTrust(mobile_chain.context, 'action', 'action_task_id')
+    with open(os.path.join(COTV4_DIR, "action_github.json")) as fh:
+        link.task = json.load(fh)
+    yield link
+
+
+@pytest.yield_fixture(scope='function')
 def mobile_github_release_link(mobile_chain):
     decision_link = _craft_decision_link(
         mobile_chain,
@@ -1489,6 +1497,23 @@ async def test_populate_jsone_context_github_push(mocker, mobile_chain, mobile_g
     }
 
 
+async def test_get_additional_git_action_jsone_context(github_action_link):
+    jsone_context = await cotverify._get_additional_git_action_jsone_context(None, parent_link)
+    assert jsone_context == {
+        "taskGroupId": "decision_task_id",
+        "taskId": None,
+        "input": {
+            "build_number": 1,
+            "do_not_optimize": [],
+            "previous_graph_ids": [],
+            "rebuild_kinds": [],
+            "release_promotion_flavor": "build",
+            "version": "",
+            "xpi_name": "multipreffer",
+        },
+    }
+
+
 @pytest.mark.parametrize('is_fork', (True, False))
 @pytest.mark.asyncio
 async def test_populate_jsone_context_github_pull_request(mocker, mobile_chain_pull_request, mobile_github_pull_request_link, is_fork):
@@ -1594,6 +1619,30 @@ async def test_populate_jsone_context_fail(mobile_chain, mobile_github_release_l
         await cotverify.populate_jsone_context(
             mobile_chain, mobile_github_release_link, mobile_github_release_link, tasks_for='bad-tasks-for'
         )
+
+
+@pytest.mark.asyncio
+async def test_populate_jsone_context_github_action(mocker, mobile_chain, mobile_github_push_link, github_action_link):
+    context = await cotverify.populate_jsone_context(
+        mobile_chain, github_action_link, mobile_github_push_link, tasks_for='action'
+    )
+    del context['as_slugid']
+    assert context == {
+        'now': '2019-10-21T23:36:07.490Z',
+        'ownTaskId': 'action_task_id',
+        'taskId': None,
+        'tasks_for': 'action',
+        "taskGroupId": "decision_task_id",
+        "input": {
+            "build_number": 1,
+            "do_not_optimize": [],
+            "previous_graph_ids": [],
+            "rebuild_kinds": [],
+            "release_promotion_flavor": "build",
+            "version": "",
+            "xpi_name": "multipreffer",
+        },
+    }
 
 
 # get_action_context_and_template {{{1

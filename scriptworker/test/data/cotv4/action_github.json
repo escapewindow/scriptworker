@@ -1,0 +1,99 @@
+{
+  "provisionerId": "aws-provisioner-v1",
+  "workerType": "xpi-1-decision",
+  "schedulerId": "xpi-level-1",
+  "taskGroupId": "decision_task_id",
+  "dependencies": [],
+  "requires": "all-completed",
+  "routes": [
+    "checks",
+    "tc-treeherder.v2.xpi-manifest.1f444d8465ad7a564b230e49ccb37171271ac02b"
+  ],
+  "priority": "lowest",
+  "retries": 5,
+  "created": "2019-10-21T23:36:07.490Z",
+  "deadline": "2019-10-22T23:36:07.490Z",
+  "expires": "2020-10-20T23:36:08.490Z",
+  "scopes": [
+    "assume:repo:github.com/escapewindow/xpi-manifest:action:release-promotion"
+  ],
+  "payload": {
+    "env": {
+      "XPI_BASE_REPOSITORY": "https://github.com/escapewindow/xpi-manifest",
+      "XPI_HEAD_REPOSITORY": "https://github.com/escapewindow/xpi-manifest",
+      "XPI_HEAD_REF": "refs/heads/master",
+      "XPI_HEAD_REV": "1f444d8465ad7a564b230e49ccb37171271ac02b",
+      "XPI_REPOSITORY_TYPE": "git",
+      "TASKGRAPH_BASE_REPOSITORY": "https://hg.mozilla.org/ci/taskgraph",
+      "TASKGRAPH_HEAD_REPOSITORY": "https://hg.mozilla.org/ci/taskgraph-try",
+      "TASKGRAPH_HEAD_REV": "d6f5998ed6ea2ffbb40d68451fa3b40c37fe1f62",
+      "TASKGRAPH_REPOSITORY_TYPE": "hg",
+      "REPOSITORIES": "{\"taskgraph\":\"Taskgraph\",\"xpi\":\"XPI Manifest\"}",
+      "HG_STORE_PATH": "/builds/worker/checkouts/hg-store",
+      "ACTION_TASK_GROUP_ID": "f3V--kXhQnOHjv7y7fTDFA",
+      "ACTION_TASK_ID": "null",
+      "ACTION_INPUT": "{\"build_number\":1,\"do_not_optimize\":[],\"previous_graph_ids\":[],\"rebuild_kinds\":[],\"release_promotion_flavor\":\"build\",\"version\":\"\",\"xpi_name\":\"multipreffer\"}",
+      "ACTION_CALLBACK": "release-promotion"
+    },
+    "features": {
+      "taskclusterProxy": true,
+      "chainOfTrust": true
+    },
+    "image": "mozillareleases/taskgraph:decision-bd477b55732fc5f5d55a78e6162355af8bc81805b415a9ea8dbe42c020f840db",
+    "maxRunTime": 1800,
+    "command": [
+      "/usr/local/bin/run-task",
+      "--xpi-checkout=/builds/worker/checkouts/src",
+      "--taskgraph-checkout=/builds/worker/checkouts/taskgraph",
+      "--task-cwd=/builds/worker/checkouts/src",
+      "--",
+      "bash",
+      "-cx",
+      "PIP_IGNORE_INSTALLED=0 pip install --user /builds/worker/checkouts/taskgraph && cd /builds/worker/checkouts/src && ln -s /builds/worker/artifacts artifacts && ~/.local/bin/taskgraph action-callback\n"
+    ],
+    "artifacts": {
+      "public": {
+        "type": "directory",
+        "path": "/builds/worker/artifacts",
+        "expires": "2020-10-20T23:36:07.490Z"
+      }
+    }
+  },
+  "metadata": {
+    "owner": "action@noreply.mozilla.org",
+    "source": "https://github.com/escapewindow/xpi-manifest/raw/1f444d8465ad7a564b230e49ccb37171271ac02b/.taskcluster.yml",
+    "name": "Action: Promote a XPI",
+    "description": "Promote a XPI."
+  },
+  "tags": {
+    "kind": "action-callback"
+  },
+  "extra": {
+    "treeherder": {
+      "machine": {
+        "platform": "gecko-decision"
+      },
+      "groupName": "action-callback",
+      "groupSymbol": "AC",
+      "symbol": "build_multipreffer"
+    },
+    "parent": "f3V--kXhQnOHjv7y7fTDFA",
+    "action": {
+      "name": "release-promotion",
+      "context": {
+        "taskGroupId": "decision_task_id",
+        "taskId": null,
+        "input": {
+          "build_number": 1,
+          "do_not_optimize": [],
+          "previous_graph_ids": [],
+          "rebuild_kinds": [],
+          "release_promotion_flavor": "build",
+          "version": "",
+          "xpi_name": "multipreffer"
+        }
+      }
+    },
+    "tasks_for": "action"
+  }
+}
