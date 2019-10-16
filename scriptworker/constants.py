@@ -103,7 +103,8 @@ DEFAULT_CONFIG = frozendict({
         ]),
     }),
 
-    "project_configuration_url": "https://hg.mozilla.org/ci/ci-configuration/raw-file/default/projects.yml",
+    #"project_configuration_url": "https://hg.mozilla.org/ci/ci-configuration/raw-file/default/projects.yml",
+    "project_configuration_url": "https://hg.mozilla.org/ci/ci-configuration-try/raw-file/478b8b8bbfdc79d7cbfc33872885013a62f61aef/projects.yml",
     "pushlog_url": "{repo}/json-pushes?changeset={revision}&tipsonly=1&version=2&full=1",
 
     "chain_of_trust_hash_algorithm": "sha256",
