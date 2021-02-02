@@ -49,7 +49,9 @@ DEFAULT_CONFIG = immutabledict(
         "reclaim_interval": 300,
         "poll_interval": 10,
         "sign_key_timeout": 60 * 2,
-        "reversed_statuses": immutabledict({-11: STATUSES["intermittent-task"], -15: STATUSES["intermittent-task"]}),
+        "reversed_statuses": immutabledict(
+            {-11: STATUSES["intermittent-task"], -15: STATUSES["intermittent-task"], 245: STATUSES["intermittent-task"], 241: STATUSES["intermittent-task"]}
+        ),
         # Report this status on max_timeout. `intermittent-task` will rerun the
         # task automatically. `internal-error` or other will require manual
         # intervention.
